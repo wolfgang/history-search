@@ -1,14 +1,28 @@
-use std::thread;
-use std::time::Duration;
-
-use console::Term;
-
+use console::{Key, Term};
 
 fn main() -> std::io::Result<()> {
     let term = Term::stdout();
-    term.move_cursor_down(10)?;
-    term.write_line("Hello 1")?;
-    term.move_cursor_up(5)?;
-    term.write_line("Hello 2")?;
+    let mut offset = 1;
+    render_items(&term, &mut offset)?;
+
+    loop {
+        match term.read_key()? {
+            Key::Enter => {
+                return Ok(());
+            }
+            _ => {
+                offset = offset + 1;
+                term.clear_last_lines(2)?;
+                render_items(&term, &mut offset)?;
+            }
+        }
+    }
+}
+
+
+fn render_items(term: &Term, offset: &mut u32) -> std::io::Result<()> {
+    term.write_str(&format!("Hello {}\n", offset))?;
+    term.write_str(&format!("Hello {}\n", *offset+1))?;
     Ok(())
+   
 }
