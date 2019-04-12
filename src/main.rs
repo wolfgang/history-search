@@ -31,8 +31,8 @@ fn main() -> std::io::Result<()> {
 
 
 fn render_items(term: &Term, offset: &mut u32) -> std::io::Result<()> {
-    term.write_str(&format!("Hello {}\n", offset))?;
-    term.write_str(&format!("Hello {}\n", *offset+1))?;
+    term.write_str(&format!("Hello {}", offset))?;
+    term.write_str(&format!("Hello {}", *offset+1))?;
     Ok(())
    
 }
