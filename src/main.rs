@@ -1,4 +1,4 @@
-use console::{Term};
+use console::{Key, Term};
 
 fn main() -> std::io::Result<()> {
     let term = Term::stdout();
@@ -9,15 +9,23 @@ fn main() -> std::io::Result<()> {
 
 
     loop {
-        let key = term.read_char().unwrap();
-        if key as u8 == 10 {
-            return Ok(());
+        let key = term.read_key().unwrap();
+
+        match key {
+            Key::Escape => {
+                return Ok(());
+            }
+
+            Key::Char(ch) => {
+                search_term.push(ch);
+                term.clear_last_lines(3)?;
+                term.write_str(&format!("> {}\n", search_term))?;
+                offset = offset + 1;
+                render_items(&term, &mut offset)?;                
+            }
+
+            _ => {}
         }
-        search_term.push(key);
-        term.clear_last_lines(3)?;
-        term.write_str(&format!("> {}\n", search_term))?;
-        offset = offset + 1;
-        render_items(&term, &mut offset)?;
     }
 }
 
