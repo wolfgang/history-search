@@ -10,7 +10,7 @@ fn main() -> std::io::Result<()> {
 
     loop {
         let key = term.read_char().unwrap();
-        if key == '\n' {
+        if key as u8 == 10 {
             return Ok(());
         }
         search_term.push(key);
