@@ -1,4 +1,4 @@
-use console::{Key, Term};
+use console::{Term};
 
 fn main() -> std::io::Result<()> {
     let term = Term::stdout();
