@@ -1,0 +1,8 @@
+[package]
+name = "replay"
+version = "0.1.0"
+authors = ["wolfgang <wolfgang@wolfgangdeutsch.work>"]
+edition = "2018"
+
+[dependencies]
+console = "0.7.5"
