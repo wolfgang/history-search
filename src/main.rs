@@ -1,4 +1,5 @@
 use console::{Key, Term};
+use crossterm_cursor::cursor;
 
 fn main() -> std::io::Result<()> {
     let term = Term::stdout();
@@ -6,6 +7,9 @@ fn main() -> std::io::Result<()> {
     let mut search_term = String::from("");
     term.write_str(&format!("> {}\n", search_term))?;
     render_items(&term, &mut offset)?;
+    let mut cursor = cursor();
+    cursor.move_up(3);
+    cursor.move_right(2);
 
 
     loop {
@@ -17,11 +21,17 @@ fn main() -> std::io::Result<()> {
             }
 
             Key::Char(ch) => {
+
+
                 search_term.push(ch);
+                cursor.move_down(3);
+            
                 term.clear_last_lines(3)?;
                 term.write_str(&format!("> {}\n", search_term))?;
                 offset = offset + 1;
-                render_items(&term, &mut offset)?;                
+                render_items(&term, &mut offset)?;
+                cursor.move_up(3);
+                cursor.move_right(offset as u16 + 1);
             }
 
             _ => {}
