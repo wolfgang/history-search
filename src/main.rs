@@ -1,45 +1,22 @@
 
 mod item_list;
+mod item_list_controller;
 
-use std::env;
-use std::process::Command;
+
+
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use console::{Key, Term};
+use console::{Term};
 use item_list::ItemList;
+use item_list_controller::ItemListController;
 
 fn main() -> std::io::Result<()> {
     let items = read_items("test.txt");
     let term = Term::stdout();
 
     let mut item_list = ItemList::new(&term, &items);
-    item_list.render()?;
-    item_list.init_cursor()?;
-
-    loop {
-        let key = term.read_key().unwrap();
-
-        match key {
-            Key::Enter => {
-                item_list.clear()?;
-                let cmd = item_list.selected_item();
-                println!("Selected: {:}", cmd);
-
-                let shell = env::var_os("SHELL").unwrap();
-                Command::new(shell)
-                        .arg("-c")
-                        .arg(cmd)
-                        .status()
-                        .expect(&format!("Failed to execute: {}", cmd ));
-                return Ok(());
-            }
-            Key::Escape => { return Ok(()); }
-            Key::ArrowUp => { item_list.change_selection(-1)?; }
-            Key::ArrowDown => { item_list.change_selection(1)?; }
-            Key::Char(ch) => { item_list.on_character_entered(ch)?; }
-            _ => {}
-        }
-    }
+    let mut item_list_controller = ItemListController::new(&term, &mut item_list);
+    item_list_controller.run()
 }
 
 fn read_items(file_name: &str) -> Vec<String> {
