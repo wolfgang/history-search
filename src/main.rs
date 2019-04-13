@@ -79,6 +79,9 @@ impl<'a> ItemList<'a> {
 
     pub fn change_selection(&mut self, direction: i16) -> std::io::Result<()> {
         self.selection = self.selection + direction;
+        if self.selection < 0 { self.selection = 0; }
+        let max_selection = self.items.len() as i16 -1;
+        if self.selection > max_selection { self.selection = max_selection; }
         self.refresh()?;
         Ok(())
     }
