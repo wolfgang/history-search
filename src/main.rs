@@ -6,7 +6,7 @@ fn main() -> std::io::Result<()> {
     let mut offset = 1;
     let mut search_term = String::from("");
     term.write_line(&format!("> {}", search_term))?;
-    render_items(&term, &mut offset)?;
+    render_items(&term, "")?;
     let mut cursor = cursor();
     cursor.move_up(3);
     cursor.move_right(2);
@@ -29,7 +29,7 @@ fn main() -> std::io::Result<()> {
                 term.clear_last_lines(3)?;
                 term.write_line(&format!("> {}", search_term))?;
                 offset = offset + 1;
-                render_items(&term, &mut offset)?;
+                render_items(&term, &search_term)?;
                 cursor.move_up(3);
                 cursor.move_right(offset as u16 + 1);
             }
@@ -40,9 +40,9 @@ fn main() -> std::io::Result<()> {
 }
 
 
-fn render_items(term: &Term, offset: &mut u32) -> std::io::Result<()> {
-    term.write_line(&format!("Hello {}", offset))?;
-    term.write_line(&format!("Hello {}", *offset+1))?;
+fn render_items(term: &Term, search_term: &str) -> std::io::Result<()> {
+    term.write_line(&format!("Hello {}", search_term))?;
+    term.write_line(&format!("Hello {}", search_term))?;
     Ok(())
    
 }
