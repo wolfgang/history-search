@@ -6,5 +6,4 @@ edition = "2018"
 
 [dependencies]
 console = "0.7.5"
-dialoguer = "0.3.0"
 crossterm_cursor = "0.2"
