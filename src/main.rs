@@ -1,5 +1,5 @@
 use console::{Key, Term};
-use crossterm_cursor::cursor;
+use crossterm_cursor::{TerminalCursor, cursor};
 
 fn main() -> std::io::Result<()> {
     let term = Term::stdout();
@@ -21,14 +21,9 @@ fn main() -> std::io::Result<()> {
 
             Key::Char(ch) => {
                 let bs : char = 127.into();
-                if (ch == bs) {
-                    search_term.pop();                    
-                    cursor.save_position()?;
-                    cursor.move_down(items.len() as u16 + 1);
-                
-                    term.clear_last_lines(items.len() + 1)?;
-                    render_items(&term, &items, &search_term)?;
-                    cursor.reset_position()?;
+                if ch == Char::from(127) {
+                    search_term.pop();
+                    refresh_items(&term, &mut cursor, &items, &search_term)?;
                     cursor.move_left(1);
                 }
                 else {
@@ -46,6 +41,21 @@ fn main() -> std::io::Result<()> {
             _ => {}
         }
     }
+}
+
+fn refresh_items(
+    term: &Term,
+    cursor: &mut TerminalCursor,
+    items: &Vec<&str>, 
+    search_term: &str) -> std::io::Result<()> {
+
+    cursor.save_position()?;
+    cursor.move_down(items.len() as u16 + 1);
+
+    term.clear_last_lines(items.len() + 1)?;
+    render_items(&term, &items, &search_term)?;
+    cursor.reset_position()?;
+    Ok(())
 }
 
 fn render_items(
