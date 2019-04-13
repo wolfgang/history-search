@@ -18,7 +18,7 @@ fn main() -> std::io::Result<()> {
         match key {
             Key::Enter => {
                 item_list.clear()?;
-                println!("Selected: {:}", "haha");
+                println!("Selected: {:}", item_list.selected_item());
                 return Ok(());
             }
             Key::Escape => { return Ok(()); }
@@ -102,9 +102,7 @@ impl<'a> ItemList<'a> {
 
     pub fn render(&self) -> std::io::Result<()> {
         self.term.write_line(&format!("> {}", self.search_term))?;
-        for (index, item) in self.items.iter()
-                                .filter(|it| it.find(&self.search_term) != None )
-                                .enumerate() {
+        for (index, item) in self.filtered_items().iter().enumerate() {
             if index == self.selection as usize {
                 self.term.write_line(&format!("{}", style(item).reverse()))?;
             }
@@ -119,6 +117,14 @@ impl<'a> ItemList<'a> {
         self.cursor.move_up(self.height());
         self.cursor.move_right(2);
         Ok(())
+    }
+
+    pub fn selected_item(&self) -> &String {
+        self.filtered_items()[self.selection as usize]
+    }
+
+    fn filtered_items(&self) -> Vec<&String> {
+        self.items.iter().filter(|it| it.find(&self.search_term) != None ).collect()
     }
 
     fn height(&self) -> u16 {
