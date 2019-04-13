@@ -25,12 +25,10 @@ fn main() -> std::io::Result<()> {
                 if ch == delete && cursor_x > 2 {
                     search_term.pop();
                     renderer.refresh_items(&search_term)?;
-                    cursor.move_left(1);
                 }
                 else if ch != delete {
                     search_term.push(ch);
                     renderer.refresh_items(&search_term)?;
-                    cursor.move_right(1);
                 }
             }
 
@@ -57,6 +55,8 @@ impl<'a> ItemListRenderer<'a> {
         self.term.clear_last_lines(self.items.len() + 1)?;
         self.render_items(&search_term)?;
         self.cursor.reset_position()?;
+        let (_, y) = self.cursor.pos();
+        self.cursor.goto(search_term.len() as u16 + 2, y);
 
         Ok(())
     }
@@ -67,7 +67,6 @@ impl<'a> ItemListRenderer<'a> {
             if item.find(search_term) != None {
                 self.term.write_line(&format!("{}", item))?;
             }
-
         }
         Ok(())
     }
