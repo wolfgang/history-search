@@ -19,13 +19,14 @@ fn main() -> std::io::Result<()> {
 
             Key::Char(ch) => {
                 search_term.push(ch);
+                cursor.save_position();
                 cursor.move_down(3);
             
                 term.clear_last_lines(3)?;
                 term.write_line(&format!("> {}", search_term))?;
                 render_items(&term, &search_term)?;
-                cursor.move_up(3);
-                cursor.move_right(search_term.len() as u16 + 2);
+                cursor.reset_position();
+                cursor.move_right(1);
             }
 
             _ => {}
