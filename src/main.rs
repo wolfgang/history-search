@@ -8,10 +8,9 @@ fn main() -> std::io::Result<()> {
     let items = vec!("This is item 1", "This is another item", "And another");
     let mut renderer = ItemListRenderer::new(&term, &items);
     renderer.render_items(&search_term)?;
+    renderer.init_cursor()?;
 
     let mut cursor = cursor();
-    cursor.move_up(items.len() as u16 + 1);
-    cursor.move_right(2);
 
     let delete = char::from(127);
 
@@ -70,6 +69,12 @@ impl<'a> ItemListRenderer<'a> {
             }
 
         }
+        Ok(())
+    }
+
+    pub fn init_cursor(&mut self) -> std::io::Result<()> {
+        self.cursor.move_up(self.items.len() as u16 + 1);
+        self.cursor.move_right(2);
         Ok(())
     }
 
