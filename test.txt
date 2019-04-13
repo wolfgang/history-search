@@ -5,3 +5,5 @@ ls
 ls
 :/Users/wodev/projects/mw/replay:ls
 ls -al
+ls -al
+:/Users/wodev/projects/mw/replay:ls -al

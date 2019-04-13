@@ -16,7 +16,7 @@ fn main() -> std::io::Result<()> {
     args.remove(0);
 
     if !args.is_empty() {
-        let mut cwd = String::from("");
+        let mut prefix = String::from("");
         if args[0] == "-d" {
             args.remove(0);
             if args.is_empty() {
@@ -24,15 +24,8 @@ fn main() -> std::io::Result<()> {
                 process::exit(1);
             }
 
-            cwd = env::current_dir().unwrap().as_path().to_str().unwrap().to_string();
-
-        }
-
-        println!("{}", cwd);
-
-        let mut prefix = String::from("");
-        if cwd != "" {
-            prefix = format!(":{}:", cwd)
+            let cwd = env::current_dir().unwrap().as_path().to_str().unwrap().to_string();
+            prefix = format!(":{}:", cwd);    
         }
 
         let mut file = OpenOptions::new().append(true).open("test.txt")?;
