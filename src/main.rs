@@ -1,11 +1,8 @@
 
+mod item_storage;
 mod item_list;
 mod item_list_controller;
 
-use std::io::prelude::*;
-use std::process;
-use std::fs::{File, OpenOptions};
-use std::io::{BufRead, BufReader};
 use std::env;
 use console::{Term};
 use item_list::ItemList;
@@ -15,71 +12,15 @@ fn main() -> std::io::Result<()> {
     let mut args: Vec<String> = env::args().collect();
     args.remove(0);
 
+    item_storage::init();
+
     if !args.is_empty() {
-        return add_item(&mut args);
+        return item_storage::add_item(&mut args);
     }
 
-    let items = read_items("test.txt");
+    let items = item_storage::read_items();
     let term = Term::stdout();
-
     let mut item_list = ItemList::new(&term, &items);
-    let mut item_list_controller = ItemListController::new(&term, &mut item_list);
-    item_list_controller.run()
+    return ItemListController::new(&term, &mut item_list).run();
 }
-
-fn add_item(args: &mut Vec<String>) -> std::io::Result<()> {
-    let mut prefix = String::from("");
-    if args[0] == "-d" {
-        args.remove(0);
-        if args.is_empty() {
-            println!("Error: Must add command if specifying -d");
-            process::exit(1);
-        }
-
-        let cwd = env::current_dir().unwrap().as_path().to_str().unwrap().to_string();
-        prefix = format!("[{}]", cwd);    
-    }
-
-    let mut file = OpenOptions::new().append(true).open("test.txt")?;
-    let entry = args.join(" ");
-    write!(file, "{}{}\n", prefix, entry)?;
-    println!("Added entry: {}{}", prefix, entry);
-    return Ok(());
-}
-
-fn read_items(file_name: &str) -> Vec<String> {
-    let file = File::open(file_name).unwrap();
-    let reader = BufReader::new(file);
-
-    let mut items = Vec::new();
-
-    for (_, line) in reader.lines().enumerate() {
-        let line = line.unwrap(); // Ignore errors.
-        items.push(line);
-    }
-
-    items
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn string_splitting1() {
-        let entry = String::from("[some/path]some command");
-        let parts : Vec<&str> = entry.split("]").collect();
-        assert_eq!(vec!("[some/path", "some command"), parts);
-        assert_eq!("some/path", &parts[0][1..]);
-    }
-
-    #[test]
-    fn string_splitting2() {
-        let entry = String::from("some command");
-        let parts : Vec<&str> = entry.split("]").collect();
-        assert_eq!(vec!("some command"), parts);
-    }
-}
-
-
-
-
 
