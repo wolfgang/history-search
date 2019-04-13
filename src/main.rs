@@ -47,9 +47,9 @@ impl<'a> ItemListRenderer<'a> {
 
     pub fn refresh_items(&mut self, search_term: &str) -> std::io::Result<()> {
         self.cursor.save_position()?;
-        self.cursor.move_down(self.items.len() as u16 + 1);
+        self.cursor.move_down(self.height());
 
-        self.term.clear_last_lines(self.items.len() + 1)?;
+        self.term.clear_last_lines(self.height() as usize)?;
         self.render_items(&search_term)?;
         self.cursor.reset_position()?;
         let (_, y) = self.cursor.pos();
@@ -69,9 +69,13 @@ impl<'a> ItemListRenderer<'a> {
     }
 
     pub fn init_cursor(&mut self) -> std::io::Result<()> {
-        self.cursor.move_up(self.items.len() as u16 + 1);
+        self.cursor.move_up(self.height());
         self.cursor.move_right(2);
         Ok(())
+    }
+
+    fn height(&self) -> u16 {
+        self.items.len() as u16 + 1
     }
 
 }
