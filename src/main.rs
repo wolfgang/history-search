@@ -10,19 +10,16 @@ fn main() -> std::io::Result<()> {
     renderer.render_items(&search_term)?;
     renderer.init_cursor()?;
 
-    let mut cursor = cursor();
-
     let delete = char::from(127);
 
     loop {
-        let (cursor_x, _) = cursor.pos();
         let key = term.read_key().unwrap();
 
         match key {
             Key::Escape => { return Ok(()); }
 
             Key::Char(ch) => {
-                if ch == delete && cursor_x > 2 {
+                if ch == delete && search_term.len() > 0 {
                     search_term.pop();
                     renderer.refresh_items(&search_term)?;
                 }
@@ -56,7 +53,7 @@ impl<'a> ItemListRenderer<'a> {
         self.render_items(&search_term)?;
         self.cursor.reset_position()?;
         let (_, y) = self.cursor.pos();
-        self.cursor.goto(search_term.len() as u16 + 2, y);
+        self.cursor.goto(search_term.len() as u16 + 2, y)?;
 
         Ok(())
     }
