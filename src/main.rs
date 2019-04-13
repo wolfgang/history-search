@@ -57,3 +57,26 @@ fn read_items(file_name: &str) -> Vec<String> {
 
     items
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn string_splitting1() {
+        let entry = String::from("[some/path]some command");
+        let parts : Vec<&str> = entry.split("]").collect();
+        assert_eq!(vec!("[some/path", "some command"), parts);
+        assert_eq!("some/path", &parts[0][1..]);
+    }
+    
+    #[test]
+    fn string_splitting2() {
+        let entry = String::from("some command");
+        let parts : Vec<&str> = entry.split("]").collect();
+        assert_eq!(vec!("some command"), parts);
+    }
+}
+
+
+
+
+
