@@ -77,9 +77,12 @@ impl<'a> ItemList<'a> {
 
     pub fn render(&self, search_term: &str) -> std::io::Result<()> {
         self.term.write_line(&format!("> {}", search_term))?;
-        for item in self.items.iter() {
-            if item.find(search_term) != None {
+        for (index, item) in self.items.iter().filter(|it| it.find(search_term) != None ).enumerate() {
+            if index == 0 {
                 self.term.write_line(&format!("{}", style(item).reverse()))?;
+            }
+            else {
+                self.term.write_line(&format!("{}", item))?;
             }
         }
         Ok(())
