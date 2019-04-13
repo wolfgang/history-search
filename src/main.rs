@@ -16,6 +16,11 @@ fn main() -> std::io::Result<()> {
         let key = term.read_key().unwrap();
 
         match key {
+            Key::Enter => {
+                item_list.clear()?;
+                println!("Selected: {:}", "haha");
+                return Ok(());
+            }
             Key::Escape => { return Ok(()); }
             Key::ArrowUp => { item_list.change_selection(-1)?; }
             Key::ArrowDown => { item_list.change_selection(1)?; }
@@ -78,18 +83,20 @@ impl<'a> ItemList<'a> {
         Ok(())
     }
 
-
-
     pub fn refresh(&mut self) -> std::io::Result<()> {
         self.cursor.save_position()?;
-        self.cursor.move_down(self.height());
-
-        self.term.clear_last_lines(self.height() as usize)?;
+        self.clear()?;
         self.render()?;
         self.cursor.reset_position()?;
         let (_, y) = self.cursor.pos();
         self.cursor.goto(self.search_term.len() as u16 + 2, y)?;
 
+        Ok(())
+    }
+
+    pub fn clear(&mut self) -> std::io::Result<()> {
+        self.cursor.move_down(self.height());
+        self.term.clear_last_lines(self.height() as usize)?;
         Ok(())
     }
 
