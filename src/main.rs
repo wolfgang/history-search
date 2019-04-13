@@ -1,11 +1,14 @@
+
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 use console::{Key, Term};
 use crossterm_cursor::{TerminalCursor, cursor};
 
 fn main() -> std::io::Result<()> {
+    let items = read_items("Cargo.toml");
     let term = Term::stdout();
     let mut search_term = String::from("");
 
-    let items = vec!("This is item 1", "This is another item", "And another");
     let mut renderer = ItemList::new(&term, &items);
     renderer.render(&search_term)?;
     renderer.init_cursor()?;
@@ -34,14 +37,28 @@ fn main() -> std::io::Result<()> {
     }
 }
 
+fn read_items(file_name: &str) -> Vec<String> {
+    let file = File::open(file_name).unwrap();
+    let reader = BufReader::new(file);
+
+    let mut items = Vec::new();
+
+    for (_, line) in reader.lines().enumerate() {
+        let line = line.unwrap(); // Ignore errors.
+        items.push(line);
+    }
+
+    items
+}
+
 struct ItemList<'a> {
     term: &'a Term,
-    items: &'a Vec<&'a str>,
+    items: &'a Vec<String>,
     cursor: TerminalCursor
 }
 
 impl<'a> ItemList<'a> {
-    pub fn new(term: &'a Term, items: &'a Vec<&str>) -> ItemList<'a> {
+    pub fn new(term: &'a Term, items: &'a Vec<String>) -> ItemList<'a> {
         ItemList {term: term, items: items, cursor: cursor()}
     }
 
