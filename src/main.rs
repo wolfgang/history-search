@@ -12,20 +12,22 @@ fn main() -> std::io::Result<()> {
     cursor.move_up(items.len() as u16 + 1);
     cursor.move_right(2);
 
+    let delete = char::from(127);
 
     loop {
+        let (cursor_x, _) = cursor.pos();
         let key = term.read_key().unwrap();
 
         match key {
             Key::Escape => { return Ok(()); }
 
             Key::Char(ch) => {
-                if ch == char::from(127) {
+                if ch == delete && cursor_x > 2 {
                     search_term.pop();
                     refresh_items(&term, &mut cursor, &items, &search_term)?;
                     cursor.move_left(1);
                 }
-                else {
+                else if ch != delete {
                     search_term.push(ch);
                     refresh_items(&term, &mut cursor, &items, &search_term)?;
                     cursor.move_right(1);
