@@ -1,13 +1,15 @@
 
 mod item_list;
 
+use std::env;
+use std::process::Command;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use console::{Key, Term};
 use item_list::ItemList;
 
 fn main() -> std::io::Result<()> {
-    let items = read_items("Cargo.toml");
+    let items = read_items("test.txt");
     let term = Term::stdout();
 
     let mut item_list = ItemList::new(&term, &items);
@@ -20,7 +22,15 @@ fn main() -> std::io::Result<()> {
         match key {
             Key::Enter => {
                 item_list.clear()?;
-                println!("Selected: {:}", item_list.selected_item());
+                let cmd = item_list.selected_item();
+                println!("Selected: {:}", cmd);
+
+                let shell = env::var_os("SHELL").unwrap();
+                Command::new(shell)
+                        .arg("-c")
+                        .arg(cmd)
+                        .status()
+                        .expect(&format!("Failed to execute: {}", cmd ));
                 return Ok(());
             }
             Key::Escape => { return Ok(()); }

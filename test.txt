@@ -1,0 +1,5 @@
+ls -al
+cat /etc/passwd
+man cat
+oops
+echo $PATH
