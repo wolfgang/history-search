@@ -54,7 +54,6 @@ fn read_items(file_name: &str) -> Vec<String> {
 struct ItemList<'a> {
     term: &'a Term,
     items: &'a Vec<String>,
-    filtered_items: Vec<&'a String>,
     cursor: TerminalCursor
 }
 
@@ -63,15 +62,10 @@ impl<'a> ItemList<'a> {
         ItemList {
             term: term, 
             items: items, 
-            filtered_items: items.iter().collect(),
             cursor: cursor()}
     }
 
     pub fn refresh(&mut self, search_term: &str) -> std::io::Result<()> {
-        self.filtered_items = self.items.iter()
-                                        .filter(|it| it.find(search_term) != None )
-                                        .collect();
-
         self.cursor.save_position()?;
         self.cursor.move_down(self.height());
 
@@ -86,8 +80,10 @@ impl<'a> ItemList<'a> {
 
     pub fn render(&self, search_term: &str) -> std::io::Result<()> {
         self.term.write_line(&format!("> {}", search_term))?;
-        for (index, item) in self.filtered_items.iter().enumerate() {
-            if index == 0 {
+        for (index, item) in self.items.iter()
+                                .filter(|it| it.find(search_term) != None )
+                                .enumerate() {
+            if index == 1 {
                 self.term.write_line(&format!("{}", style(item).reverse()))?;
             }
             else {
