@@ -16,25 +16,8 @@ fn main() -> std::io::Result<()> {
     args.remove(0);
 
     if !args.is_empty() {
-        let mut prefix = String::from("");
-        if args[0] == "-d" {
-            args.remove(0);
-            if args.is_empty() {
-                println!("Error: Must add command if specifying -d");
-                process::exit(1);
-            }
-
-            let cwd = env::current_dir().unwrap().as_path().to_str().unwrap().to_string();
-            prefix = format!("[{}]", cwd);    
-        }
-
-        let mut file = OpenOptions::new().append(true).open("test.txt")?;
-        let entry = args.join(" ");
-        write!(file, "{}{}\n", prefix, entry)?;
-        println!("Added entry: {}{}", prefix, entry);
-        return Ok(());
+        return add_item(&mut args);
     }
-
 
     let items = read_items("test.txt");
     let term = Term::stdout();
@@ -42,6 +25,26 @@ fn main() -> std::io::Result<()> {
     let mut item_list = ItemList::new(&term, &items);
     let mut item_list_controller = ItemListController::new(&term, &mut item_list);
     item_list_controller.run()
+}
+
+fn add_item(args: &mut Vec<String>) -> std::io::Result<()> {
+    let mut prefix = String::from("");
+    if args[0] == "-d" {
+        args.remove(0);
+        if args.is_empty() {
+            println!("Error: Must add command if specifying -d");
+            process::exit(1);
+        }
+
+        let cwd = env::current_dir().unwrap().as_path().to_str().unwrap().to_string();
+        prefix = format!("[{}]", cwd);    
+    }
+
+    let mut file = OpenOptions::new().append(true).open("test.txt")?;
+    let entry = args.join(" ");
+    write!(file, "{}{}\n", prefix, entry)?;
+    println!("Added entry: {}{}", prefix, entry);
+    return Ok(());
 }
 
 fn read_items(file_name: &str) -> Vec<String> {
@@ -67,7 +70,7 @@ mod tests {
         assert_eq!(vec!("[some/path", "some command"), parts);
         assert_eq!("some/path", &parts[0][1..]);
     }
-    
+
     #[test]
     fn string_splitting2() {
         let entry = String::from("some command");
