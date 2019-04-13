@@ -42,7 +42,9 @@ fn render_items(
 
     term.write_line(&format!("> {}", search_term))?;
     for item in items.iter() {
-        term.write_line(&format!("{} {}", item, search_term))?;
+        if item.find(search_term) != None {
+            term.write_line(&format!("{}", item))?;
+        }
 
     }
     Ok(())
