@@ -6,8 +6,8 @@ fn main() -> std::io::Result<()> {
     let mut search_term = String::from("");
 
     let items = vec!("This is item 1", "This is another item", "And another");
-    let mut renderer = ItemListRenderer::new(&term, &items);
-    renderer.render_items(&search_term)?;
+    let mut renderer = ItemList::new(&term, &items);
+    renderer.render(&search_term)?;
     renderer.init_cursor()?;
 
     let delete = char::from(127);
@@ -21,11 +21,11 @@ fn main() -> std::io::Result<()> {
             Key::Char(ch) => {
                 if ch == delete && search_term.len() > 0 {
                     search_term.pop();
-                    renderer.refresh_items(&search_term)?;
+                    renderer.refresh(&search_term)?;
                 }
                 else if ch != delete {
                     search_term.push(ch);
-                    renderer.refresh_items(&search_term)?;
+                    renderer.refresh(&search_term)?;
                 }
             }
 
@@ -34,23 +34,23 @@ fn main() -> std::io::Result<()> {
     }
 }
 
-struct ItemListRenderer<'a> {
+struct ItemList<'a> {
     term: &'a Term,
     items: &'a Vec<&'a str>,
     cursor: TerminalCursor
 }
 
-impl<'a> ItemListRenderer<'a> {
-    pub fn new(term: &'a Term, items: &'a Vec<&str>) -> ItemListRenderer<'a> {
-        ItemListRenderer {term: term, items: items, cursor: cursor()}
+impl<'a> ItemList<'a> {
+    pub fn new(term: &'a Term, items: &'a Vec<&str>) -> ItemList<'a> {
+        ItemList {term: term, items: items, cursor: cursor()}
     }
 
-    pub fn refresh_items(&mut self, search_term: &str) -> std::io::Result<()> {
+    pub fn refresh(&mut self, search_term: &str) -> std::io::Result<()> {
         self.cursor.save_position()?;
         self.cursor.move_down(self.height());
 
         self.term.clear_last_lines(self.height() as usize)?;
-        self.render_items(&search_term)?;
+        self.render(&search_term)?;
         self.cursor.reset_position()?;
         let (_, y) = self.cursor.pos();
         self.cursor.goto(search_term.len() as u16 + 2, y)?;
@@ -58,7 +58,7 @@ impl<'a> ItemListRenderer<'a> {
         Ok(())
     }
 
-    pub fn render_items(&self, search_term: &str) -> std::io::Result<()> {
+    pub fn render(&self, search_term: &str) -> std::io::Result<()> {
         self.term.write_line(&format!("> {}", search_term))?;
         for item in self.items.iter() {
             if item.find(search_term) != None {
