@@ -1,7 +1,7 @@
 
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use console::{Key, Term};
+use console::{Key, Term, style};
 use crossterm_cursor::{TerminalCursor, cursor};
 
 fn main() -> std::io::Result<()> {
@@ -79,7 +79,7 @@ impl<'a> ItemList<'a> {
         self.term.write_line(&format!("> {}", search_term))?;
         for item in self.items.iter() {
             if item.find(search_term) != None {
-                self.term.write_line(&format!("{}", item))?;
+                self.term.write_line(&format!("{}", style(item).reverse()))?;
             }
         }
         Ok(())
