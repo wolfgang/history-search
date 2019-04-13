@@ -38,7 +38,6 @@ impl<'a> ItemListController<'a> {
     fn execute_selection(&mut self) -> std::io::Result<()> {
         self.item_list.clear()?;
         let cmd = self.item_list.selected_item();
-        println!("Selected: {:}", cmd);
 
         let shell = env::var_os("SHELL").unwrap();
         Command::new(shell)

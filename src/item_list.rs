@@ -24,7 +24,7 @@ impl<'a> ItemList<'a> {
     pub fn on_character_entered(&mut self, ch: char) -> std::io::Result<()> {
         let delete = char::from(127);
 
-        if ch == delete && self.search_term.len() > 0 {
+        if ch == delete && !self.search_term.is_empty() {
             self.search_term.pop();
         }
         else if ch != delete {
@@ -80,7 +80,10 @@ impl<'a> ItemList<'a> {
     }
 
     pub fn selected_item(&self) -> &String {
-        self.filtered_items()[self.selection as usize]
+        match self.filtered_items().get(self.selection as usize) {
+            Some(item) => { item }
+            None => { &self.search_term }
+        }
     }
 
     fn filtered_items(&self) -> Vec<&String> {
