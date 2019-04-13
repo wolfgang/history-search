@@ -25,27 +25,27 @@ impl<'a> ItemListController<'a> {
             let key = self.term.read_key().unwrap();
 
             match key {
-                Key::Enter => {
-                    self.item_list.clear()?;
-                    let cmd = self.item_list.selected_item();
-                    println!("Selected: {:}", cmd);
-
-                    let shell = env::var_os("SHELL").unwrap();
-                    Command::new(shell)
-                            .arg("-c")
-                            .arg(cmd)
-                            .status()
-                            .expect(&format!("Failed to execute: {}", cmd ));
-                    return Ok(());
-                }
-                Key::Escape => { 
-                    return self.item_list.clear()
-                }
-                Key::ArrowUp => { self.item_list.change_selection(-1)?; }
-                Key::ArrowDown => { self.item_list.change_selection(1)?; }
-                Key::Char(ch) => { self.item_list.on_character_entered(ch)?; }
+                Key::Enter => { return self.execute_selection() }
+                Key::Escape => { return self.item_list.clear() }
+                Key::ArrowUp => { self.item_list.change_selection(-1)? }
+                Key::ArrowDown => { self.item_list.change_selection(1)? }
+                Key::Char(ch) => { self.item_list.on_character_entered(ch)? }
                 _ => {}
             }
         }
+    }
+
+    fn execute_selection(&mut self) -> std::io::Result<()> {
+        self.item_list.clear()?;
+        let cmd = self.item_list.selected_item();
+        println!("Selected: {:}", cmd);
+
+        let shell = env::var_os("SHELL").unwrap();
+        Command::new(shell)
+                .arg("-c")
+                .arg(cmd)
+                .status()
+                .expect(&format!("Failed to execute: {}", cmd ));
+        Ok(())
     }
 }
