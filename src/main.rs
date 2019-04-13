@@ -20,20 +20,14 @@ fn main() -> std::io::Result<()> {
             Key::Escape => { return Ok(()); }
 
             Key::Char(ch) => {
-                let bs : char = 127.into();
-                if ch == Char::from(127) {
+                if ch == char::from(127) {
                     search_term.pop();
                     refresh_items(&term, &mut cursor, &items, &search_term)?;
                     cursor.move_left(1);
                 }
                 else {
                     search_term.push(ch);
-                    cursor.save_position()?;
-                    cursor.move_down(items.len() as u16 + 1);
-                
-                    term.clear_last_lines(items.len() + 1)?;
-                    render_items(&term, &items, &search_term)?;
-                    cursor.reset_position()?;
+                    refresh_items(&term, &mut cursor, &items, &search_term)?;
                     cursor.move_right(1);
                 }
             }
