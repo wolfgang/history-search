@@ -7,37 +7,21 @@ use crossterm_cursor::{TerminalCursor, cursor};
 fn main() -> std::io::Result<()> {
     let items = read_items("Cargo.toml");
     let term = Term::stdout();
-    let mut search_term = String::from("");
 
-    let mut renderer = ItemList::new(&term, &items);
-    renderer.render(&search_term)?;
-    renderer.init_cursor()?;
-
-    let delete = char::from(127);
+    let mut item_list = ItemList::new(&term, &items);
+    item_list.render()?;
+    item_list.init_cursor()?;
 
     loop {
         let key = term.read_key().unwrap();
 
         match key {
             Key::Escape => { return Ok(()); }
-
-            Key::ArrowUp => { renderer.change_selection(-1); }
-            Key::ArrowDown => { renderer.change_selection(1); }
-
-            Key::Char(ch) => {
-                if ch == delete && search_term.len() > 0 {
-                    search_term.pop();
-                }
-                else if ch != delete {
-                    search_term.push(ch);
-                }
-            }
-
+            Key::ArrowUp => { item_list.change_selection(-1)?; }
+            Key::ArrowDown => { item_list.change_selection(1)?; }
+            Key::Char(ch) => { item_list.on_character_entered(ch)?; }
             _ => {}
         }
-
-        renderer.refresh(&search_term)?;
-
     }
 }
 
@@ -58,6 +42,7 @@ fn read_items(file_name: &str) -> Vec<String> {
 struct ItemList<'a> {
     term: &'a Term,
     items: &'a Vec<String>,
+    search_term: String,
     selection: i16,
     cursor: TerminalCursor,
 }
@@ -67,27 +52,51 @@ impl<'a> ItemList<'a> {
         ItemList {
             term: term, 
             items: items, 
+            search_term: String::new(),
             selection: 0,
             cursor: cursor()}
     }
 
-    pub fn refresh(&mut self, search_term: &str) -> std::io::Result<()> {
+    pub fn on_character_entered(&mut self, ch: char) -> std::io::Result<()> {
+        let delete = char::from(127);
+
+        if ch == delete && self.search_term.len() > 0 {
+            self.search_term.pop();
+        }
+        else if ch != delete {
+            self.search_term.push(ch);
+        }
+        self.selection = 0;
+        self.refresh()?;
+        Ok(())
+
+    }
+
+    pub fn change_selection(&mut self, direction: i16) -> std::io::Result<()> {
+        self.selection = self.selection + direction;
+        self.refresh()?;
+        Ok(())
+    }
+
+
+
+    pub fn refresh(&mut self) -> std::io::Result<()> {
         self.cursor.save_position()?;
         self.cursor.move_down(self.height());
 
         self.term.clear_last_lines(self.height() as usize)?;
-        self.render(&search_term)?;
+        self.render()?;
         self.cursor.reset_position()?;
         let (_, y) = self.cursor.pos();
-        self.cursor.goto(search_term.len() as u16 + 2, y)?;
+        self.cursor.goto(self.search_term.len() as u16 + 2, y)?;
 
         Ok(())
     }
 
-    pub fn render(&self, search_term: &str) -> std::io::Result<()> {
-        self.term.write_line(&format!("> {}", search_term))?;
+    pub fn render(&self) -> std::io::Result<()> {
+        self.term.write_line(&format!("> {}", self.search_term))?;
         for (index, item) in self.items.iter()
-                                .filter(|it| it.find(search_term) != None )
+                                .filter(|it| it.find(&self.search_term) != None )
                                 .enumerate() {
             if index == self.selection as usize {
                 self.term.write_line(&format!("{}", style(item).reverse()))?;
@@ -103,10 +112,6 @@ impl<'a> ItemList<'a> {
         self.cursor.move_up(self.height());
         self.cursor.move_right(2);
         Ok(())
-    }
-
-    pub fn change_selection(&mut self, direction: i16) {
-        self.selection = self.selection + direction;
     }
 
     fn height(&self) -> u16 {
