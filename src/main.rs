@@ -25,7 +25,7 @@ fn main() -> std::io::Result<()> {
             }
 
             let cwd = env::current_dir().unwrap().as_path().to_str().unwrap().to_string();
-            prefix = format!(":{}:", cwd);    
+            prefix = format!("[{}]", cwd);    
         }
 
         let mut file = OpenOptions::new().append(true).open("test.txt")?;
