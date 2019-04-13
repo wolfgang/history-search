@@ -6,15 +6,14 @@ fn main() -> std::io::Result<()> {
     let mut search_term = String::from("");
 
     let items = vec!("This is item 1", "This is another item", "And another");
+    let mut renderer = ItemListRenderer::new(&term, &items);
+    renderer.render_items(&search_term)?;
 
-    render_items(&term, &items, &search_term)?;
     let mut cursor = cursor();
     cursor.move_up(items.len() as u16 + 1);
     cursor.move_right(2);
 
     let delete = char::from(127);
-
-    let mut renderer = ItemListRenderer::new(&term, &items);
 
     loop {
         let (cursor_x, _) = cursor.pos();
@@ -57,40 +56,21 @@ impl<'a> ItemListRenderer<'a> {
         self.cursor.move_down(self.items.len() as u16 + 1);
 
         self.term.clear_last_lines(self.items.len() + 1)?;
-        render_items(self.term, self.items, &search_term)?;
+        self.render_items(&search_term)?;
         self.cursor.reset_position()?;
 
         Ok(())
     }
-}
 
-fn refresh_items(
-    term: &Term,
-    cursor: &mut TerminalCursor,
-    items: &Vec<&str>, 
-    search_term: &str) -> std::io::Result<()> {
+    pub fn render_items(&self, search_term: &str) -> std::io::Result<()> {
+        self.term.write_line(&format!("> {}", search_term))?;
+        for item in self.items.iter() {
+            if item.find(search_term) != None {
+                self.term.write_line(&format!("{}", item))?;
+            }
 
-    cursor.save_position()?;
-    cursor.move_down(items.len() as u16 + 1);
-
-    term.clear_last_lines(items.len() + 1)?;
-    render_items(&term, &items, &search_term)?;
-    cursor.reset_position()?;
-    Ok(())
-}
-
-fn render_items(
-    term: &Term,
-    items: &Vec<&str>, 
-    search_term: &str) -> std::io::Result<()> {
-
-    term.write_line(&format!("> {}", search_term))?;
-    for item in items.iter() {
-        if item.find(search_term) != None {
-            term.write_line(&format!("{}", item))?;
         }
-
+        Ok(())
     }
-    Ok(())
-   
+
 }
