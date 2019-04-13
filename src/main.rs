@@ -31,7 +31,7 @@ fn main() -> std::io::Result<()> {
                 offset = offset + 1;
                 render_items(&term, &search_term)?;
                 cursor.move_up(3);
-                cursor.move_right(search_term.len() + 1);
+                cursor.move_right(search_term.len() as u16 + 2);
             }
 
             _ => {}
