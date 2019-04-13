@@ -37,12 +37,22 @@ impl<'a> ItemListController<'a> {
 
     fn execute_selection(&mut self) -> std::io::Result<()> {
         self.item_list.clear()?;
-        let cmd = self.item_list.selected_item();
+        let item = self.item_list.selected_item();
+        let parts : Vec<&str> = item.split("]").collect();
+
+        let mut cmd = &parts[0];
+        let mut cd = ".";
+        if parts.len() == 2 {
+            cd = &parts[0][1..];
+            cmd = &parts[1]
+        }
+
 
         let shell = env::var_os("SHELL").unwrap();
         Command::new(shell)
                 .arg("-c")
                 .arg(cmd)
+                .current_dir(cd)
                 .status()
                 .expect(&format!("Failed to execute: {}", cmd ));
         Ok(())

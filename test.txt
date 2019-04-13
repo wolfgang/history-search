@@ -1,4 +1,4 @@
 ls -al
 ls -al /
 cat /etc/passwd
-[/Users/wodev/projects/mw/replay]ls -al
+[/Users/wodev]ls -al
