@@ -16,22 +16,29 @@ fn main() -> std::io::Result<()> {
     args.remove(0);
 
     if !args.is_empty() {
-        let mut add_cwd = false;
+        let mut cwd = String::from("");
         if args[0] == "-d" {
-            add_cwd = true;
             args.remove(0);
             if args.is_empty() {
                 println!("Error: Must add command if specifying -d");
                 process::exit(1);
             }
+
+            cwd = env::current_dir().unwrap().as_path().to_str().unwrap().to_string();
+
         }
 
-        println!("{:?}", add_cwd);
+        println!("{}", cwd);
+
+        let mut prefix = String::from("");
+        if cwd != "" {
+            prefix = format!(":{}:", cwd)
+        }
 
         let mut file = OpenOptions::new().append(true).open("test.txt")?;
         let entry = args.join(" ");
-        write!(file, "{}\n", entry)?;
-        println!("Added entry: {}", entry);
+        write!(file, "{}{}\n", prefix, entry)?;
+        println!("Added entry: {}{}", prefix, entry);
         return Ok(());
     }
 
