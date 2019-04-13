@@ -3,6 +3,7 @@ mod item_list;
 mod item_list_controller;
 
 use std::io::prelude::*;
+use std::process;
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader};
 use std::env;
@@ -15,6 +16,18 @@ fn main() -> std::io::Result<()> {
     args.remove(0);
 
     if !args.is_empty() {
+        let mut add_cwd = false;
+        if args[0] == "-d" {
+            add_cwd = true;
+            args.remove(0);
+            if args.is_empty() {
+                println!("Error: Must add command if specifying -d");
+                process::exit(1);
+            }
+        }
+
+        println!("{:?}", add_cwd);
+
         let mut file = OpenOptions::new().append(true).open("test.txt")?;
         let entry = args.join(" ");
         write!(file, "{}\n", entry)?;
