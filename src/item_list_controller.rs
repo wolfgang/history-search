@@ -37,26 +37,26 @@ impl<'a> ItemListController<'a> {
 
     fn execute_selection(&mut self) -> std::io::Result<()> {
         self.item_list.clear()?;
-        let item = self.item_list.selected_item();
-        let (cd, cmd) = parse_cmd(&item);
+        let (working_dir, command) = self.parse_selection();
 
         let shell = env::var_os("SHELL").unwrap();
         Command::new(shell)
                 .arg("-c")
-                .arg(&cmd)
-                .current_dir(&cd)
+                .arg(&command)
+                .current_dir(&working_dir)
                 .status()
-                .expect(&format!("Failed to execute: {}", cmd ));
+                .expect(&format!("Failed to execute: {}", command ));
         Ok(())
     }
 
-}
-
-fn parse_cmd(item: &String) -> (String, String) {
-    let parts : Vec<&str> = item.split("]").collect();
-    if parts.len() == 2 {
-        return (parts[0][1..].to_string(), parts[1].to_string());
+    fn parse_selection(&self) -> (String, String) {
+        let item = self.item_list.selected_item();
+        let parts : Vec<&str> = item.split("]").collect();
+        if parts.len() == 2 {
+            return (parts[0][1..].to_string(), parts[1].to_string());
+        }
+        (String::from("."), parts[0].to_string())
     }
 
-    (String::from(""), parts[0].to_string())
 }
+
