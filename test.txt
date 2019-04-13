@@ -3,3 +3,6 @@ cat /etc/passwd
 man cat
 oops
 echo $PATH
+ls -al /
+ls -al /Users/wodev/
+ls -al /Users
