@@ -4,9 +4,12 @@
 [x] Change selection by cursor up/down
 [X] Execute selection as command
 [X] Add an item 
-Add an item with working directory
-Read from file $HOME/.rp/items.txt
-
+[X] Add an item with working directory
+[X] Read from file $HOME/.rp/items.txt
+Display command that is about to execute
+If pressing arrow right, execute command and stay in its directory
+Don't add duplicate entries
+Add fuzzy search ala fzy
 
 # Store entry with optional working directory
 
