@@ -16,6 +16,22 @@ fn main() -> std::io::Result<()> {
     item_storage::init();
 
     if !args.is_empty() {
+        if args[0] == "-h" {
+
+            println!("\nUsage: rp [OPTIONS] INPUT");
+            println!("Store arbitrary command given in INPUT.");
+            println!("\nOptions:");
+            println!("  -d      store current directory along with command");
+            println!("  -h      show this message");
+            println!("\n");
+            println!("If no arguments are given, displays a searchable list:");
+            println!("  Enter to execute the selected command,");
+            println!("  Arrow up/down to change selection");
+            println!("  Escape to cancel");
+            println!("\nCommands are stored in ~/.rp/items.txt");
+            
+            return Ok(())
+        }
         return item_storage::add_item(&mut args);
     }
 
