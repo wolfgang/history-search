@@ -58,7 +58,7 @@ impl<'a> ItemListController<'a> {
         let blue = Style::new().blue(); 
 
         let prefix = if working_dir != "." { 
-            String::from(format!(" [{}] ", &working_dir)) 
+            format!(" [{}] ", &working_dir) 
         } else { 
             String::from(" ") 
         };
