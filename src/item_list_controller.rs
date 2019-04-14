@@ -55,9 +55,15 @@ impl<'a> ItemListController<'a> {
 
     fn print_command_info(&self, working_dir: &str, command: &str) -> std::io::Result<()> {
         let green = Style::new().green(); 
+        let blue = Style::new().blue(); 
 
-        let prefix = if working_dir != "." { String::from(format!(" [{}] ", &working_dir)) } else { String::from("") };
-        let info = format!("Exec:{}{}", green.apply_to(prefix), green.apply_to(&command));
+        let prefix = if working_dir != "." { 
+            String::from(format!(" [{}] ", &working_dir)) 
+        } else { 
+            String::from(" ") 
+        };
+
+        let info = format!("->{}{}", blue.apply_to(prefix), green.apply_to(&command));
         self.term.write_line(&info)
     }
 
