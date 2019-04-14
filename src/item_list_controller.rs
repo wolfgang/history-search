@@ -3,7 +3,7 @@ use crate::item_list::ItemList;
 use std::process::Command;
 use std::env;
 
-use console::{Key, Term};
+use console::{Key, Term, Style};
 
 pub struct ItemListController<'a> {
     term: &'a Term,
@@ -39,6 +39,7 @@ impl<'a> ItemListController<'a> {
         self.item_list.clear()?;
         let (working_dir, command) = self.parse_selection();
 
+        self.print_command_info(&working_dir, &command)?;
         let shell = env::var_os("SHELL").unwrap();
         Command::new(shell)
                 .arg("-c")
@@ -56,6 +57,14 @@ impl<'a> ItemListController<'a> {
             return (parts[0][1..].to_string(), parts[1].to_string());
         }
         (String::from("."), parts[0].to_string())
+    }
+
+    fn print_command_info(&self, working_dir: &str, command: &str) -> std::io::Result<()> {
+        let green = Style::new().green(); 
+        let cmd_info = format!("Exec: [{}] {}", 
+                                green.apply_to(&working_dir), 
+                                green.apply_to(&command));
+        self.term.write_line(&cmd_info)
     }
 
 }
