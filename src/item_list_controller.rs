@@ -40,13 +40,7 @@ impl<'a> ItemListController<'a> {
         let (working_dir, command) = self.parse_selection();
 
         self.print_command_info(&working_dir, &command)?;
-        let shell = env::var_os("SHELL").unwrap();
-        Command::new(shell)
-                .arg("-c")
-                .arg(&command)
-                .current_dir(&working_dir)
-                .status()
-                .expect(&format!("Failed to execute: {}", command ));
+        execute_command(&working_dir, &command);
         Ok(())
     }
 
@@ -67,5 +61,15 @@ impl<'a> ItemListController<'a> {
         self.term.write_line(&cmd_info)
     }
 
+}
+
+fn execute_command(working_dir: &str, command: &str) {
+    let shell = env::var_os("SHELL").unwrap();
+    Command::new(shell)
+            .arg("-c")
+            .arg(&command)
+            .current_dir(&working_dir)
+            .status()
+            .expect(&format!("Failed to execute: {}", command ));
 }
 
