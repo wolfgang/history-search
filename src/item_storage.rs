@@ -4,6 +4,7 @@ use std::process;
 use std::io::{BufRead, BufReader};
 use std::fs::{OpenOptions, DirBuilder, File};
 use std::path::Path;
+use console::{style};
 
 use std::env;
 
@@ -20,10 +21,16 @@ pub fn add_item(args: &mut Vec<String>) -> std::io::Result<()> {
         prefix = format!("[{}]", cwd);    
     }
 
+    let entry = format!("{}{}", prefix, args.join(" "));
+
+    if read_items().contains(&entry) {
+        println!("{}", style("Not adding duplicate entry").red());
+        return Ok(());
+    }
+
     let mut file = OpenOptions::new().append(true).open(get_item_file())?;
-    let entry = args.join(" ");
-    write!(file, "{}{}\n", prefix, entry)?;
-    println!("Added entry: {}{}", prefix, entry);
+    write!(file, "{}\n", entry)?;
+    println!("Added entry: {}", style(entry).green());
     return Ok(());
 }
 

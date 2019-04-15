@@ -1,5 +1,8 @@
-Terminate command on ctrl-c
+[X] Don't add duplicate entries
+[ ] Make search case insensitive
 Add command to history somehow
+Edit entries
+Terminate command on ctrl-c
 
 [x] Load entries from a file
 [x] Selection by hitting enter
@@ -9,9 +12,8 @@ Add command to history somehow
 [X] Add an item 
 [X] Add an item with working directory
 [X] Read from file $HOME/.rp/items.txt
-Display command that is about to execute
+[X]Display command that is about to execute
 If pressing arrow right, execute command and stay in its directory
-Don't add duplicate entries
 Add fuzzy search ala fzy
 
 # Store entry with optional working directory
