@@ -23,6 +23,7 @@ fn main() -> std::io::Result<()> {
     let items = item_storage::read_items();
     let term = Term::stdout();
     let mut item_list = ItemList::new(&term, &items);
+    term.move_cursor_down(2)?;
     return ItemListController::new(&term, &mut item_list).run();
 }
 
