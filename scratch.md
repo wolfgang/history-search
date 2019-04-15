@@ -1,3 +1,6 @@
+Terminate command on ctrl-c
+Add command to history somehow
+
 [x] Load entries from a file
 [x] Selection by hitting enter
 [x] Highlight selection
