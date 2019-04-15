@@ -2,7 +2,6 @@
 
 set -e
 
-cargo clean
 cargo build --release
 
 cp target/release/rp ~/bin
