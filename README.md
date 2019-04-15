@@ -1,3 +1,4 @@
+```
 Usage: rp [OPTIONS] INPUT
 Store arbitrary command given in INPUT.
 
@@ -12,3 +13,4 @@ If no arguments are given, displays a searchable list:
   Escape to cancel
 
 Commands are stored in ~/.rp/items.txt
+```
