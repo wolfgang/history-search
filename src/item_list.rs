@@ -87,7 +87,10 @@ impl<'a> ItemList<'a> {
     }
 
     fn filtered_items(&self) -> Vec<&String> {
-        self.items.iter().filter(|it| it.find(&self.search_term) != None ).collect()
+        let search_term_upper = self.search_term.to_ascii_uppercase();
+        self.items.iter()
+            .filter(|it| it.to_ascii_uppercase().find(&search_term_upper) != None )
+            .collect()
     }
 
     fn height(&self) -> u16 {
