@@ -91,7 +91,14 @@ impl<'a> ItemList<'a> {
     }
 
     fn height(&self) -> u16 {
-        self.items.len() as u16 + 1
+        let (width, _) = self.term.size();
+        let mut result = 0;
+        for item in self.items.iter() {
+            let l = item.len();
+            result = result + (l as f64/width as f64).ceil() as u16;
+        }
+
+        result + 1
     }
 
 }
