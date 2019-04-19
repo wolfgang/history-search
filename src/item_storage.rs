@@ -41,7 +41,7 @@ impl ItemStorage {
         let reader = BufReader::new(file);
 
         let mut lines : Vec<String> = reader.lines()
-            .map(|line| { line.unwrap().to_string()})
+            .map(|line| { line.unwrap().to_string() })
             .collect();
 
         lines.sort_by(|line_a: &String, line_b: &String| {
