@@ -59,8 +59,7 @@ impl ItemStorage {
         if args[0] == "-d" {
             args.remove(0);
             if args.is_empty() {
-                println!("Error: Must add command if specifying -d");
-                process::exit(1);
+                panic!("Error: Must add command if specifying -d");
             }
 
             let cwd = env::current_dir().unwrap().as_path().to_str().unwrap().to_string();

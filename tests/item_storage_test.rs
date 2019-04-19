@@ -80,6 +80,15 @@ fn add_item_add_current_dir_if_minus_d_option_is_given() {
     assert_items_file_matches(r"^\d+ \[.*/replay\]entry\n$");
 }
 
+#[test]
+#[should_panic(expected="Must add command")]
+fn add_item_panics_if_no_directory_given_after_minus_d() {
+    remove_home_dir();
+    let item_storage = ItemStorage::new(HOME_DIR);
+    let mut args = vec!(String::from("-d"));
+    item_storage.add_item(&mut args).unwrap();        
+}
+
 fn remove_home_dir()  {
     let home_dir = format!("/tmp/replay_test");
     remove_dir_all(&home_dir).unwrap_or_default();    
