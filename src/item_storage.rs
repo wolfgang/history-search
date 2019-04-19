@@ -81,14 +81,14 @@ impl ItemStorage {
     }
 
     pub fn replace_timestamp(&self, cmd: &str) {
-        let lines = self.read_lines_from_item_file();
-
-        let new_lines: Vec<String> = lines.into_iter().map(|line| {
-            let line_cmd = parse_command(&line);
-            if line_cmd == cmd { format!("{} {}", get_now_timestamp(), cmd) }
-            else { line.to_string() }
-        }).collect();
-
+        let new_lines: Vec<String> = self.read_lines_from_item_file()
+            .into_iter()
+            .map(|line| {
+                let line_cmd = parse_command(&line);
+                if line_cmd == cmd { format!("{} {}", get_now_timestamp(), cmd) }
+                else { line.to_string() }
+            })
+            .collect();
 
         let mut file = OpenOptions::new().write(true).open(&self.item_file).unwrap();
         write!(file, "{}", new_lines.join("\n")).unwrap();
