@@ -10,6 +10,18 @@ use console::{style};
 
 use std::env;
 
+pub struct ItemStorage {
+
+}
+
+impl ItemStorage {
+    pub fn new(home_dir: &str) -> ItemStorage {
+        ItemStorage {}
+    }
+}
+
+
+
 pub fn call_me() -> u32 {
     1234
 }

@@ -1,6 +1,6 @@
-use rp::item_storage;
+use rp::item_storage::ItemStorage;
 
 #[test]
-fn can_use_item_storage_module() {
-    assert_eq!(1234, item_storage::call_me());
+fn initialize_item_storage_object() {
+    let _item_storage = ItemStorage::new("/tmp/item_storage_test");
 }
