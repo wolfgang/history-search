@@ -58,7 +58,7 @@ fn add_item_adds_item_with_timestamp_to_file() {
 
     let mut args = vec!(String::from("second"), String::from("entry"));
     item_storage.add_item(&mut args).unwrap();
-    assert_items_file_matches(r"1 entry1\s+\d+\s+second entry");
+    assert_items_file_matches(r"1 entry1\n\d+ second entry");
 }
 
 #[test]
@@ -69,6 +69,15 @@ fn add_item_does_not_add_duplicates() {
     let mut args = vec!(String::from("first"), String::from("entry"));
     item_storage.add_item(&mut args).unwrap();
     assert_items_file_matches(r"^1 first entry\n$");
+}
+
+#[test]
+fn add_item_add_current_dir_if_minus_d_option_is_given() {
+    remove_home_dir();
+    let item_storage = ItemStorage::new(HOME_DIR);
+    let mut args = vec!(String::from("-d"), String::from("entry"));
+    item_storage.add_item(&mut args).unwrap();    
+    assert_items_file_matches(r"^\d+ \[.*/replay\]entry\n$");
 }
 
 fn remove_home_dir()  {
