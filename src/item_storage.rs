@@ -7,6 +7,7 @@ use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 use regex::Regex;
 
+
 use console::{style};
 
 use std::env;
@@ -43,23 +44,29 @@ pub fn read_items() -> Vec<String> {
     let file = File::open(get_item_file()).unwrap();
     let reader = BufReader::new(file);
 
+    let mut lines = Vec::new();
+
+    for (_, line) in reader.lines().enumerate() { 
+        let line = line.unwrap();
+        lines.push(line.to_string());
+    }
+
+    lines.sort_by(|a: &String, b: &String| {
+        let re = Regex::new(r"^(\d+)\s+(.*)").unwrap();
+        let caps_a = re.captures(a).unwrap();
+        let timestamp_a = caps_a.get(1).unwrap().as_str().parse::<u64>().unwrap();
+        let caps_b = re.captures(b).unwrap();
+        let timestamp_b = caps_b.get(1).unwrap().as_str().parse::<u64>().unwrap();
+
+        timestamp_b.partial_cmp(&timestamp_a).unwrap()
+    });
+
     let mut items = Vec::new();
 
-    for (_, line) in reader.lines().enumerate() {
-        let mut line = line.unwrap();
-
+    for line in lines.iter() {
+        let mut line = line.to_string();
         let after_ts = line.find(' ').unwrap_or(0);
-
-        let entry = line.split_off(after_ts+1);
-
-        // let re = Regex::new(r"^(\d+)\s+(.*)").unwrap();
-        // let caps = re.captures(&line).unwrap();
-        // let timestamp = caps.get(1).unwrap().as_str().parse::<u64>().unwrap();
-        // let entry = caps.get(2).unwrap().as_str();
-
-        // println!("{} -- {}", timestamp, entry);
-
-        items.push(entry);
+        items.push(line.split_off(after_ts+1));
     }
 
     items
