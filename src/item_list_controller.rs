@@ -1,4 +1,5 @@
 use crate::item_list::ItemList;
+use crate::item_storage;
 
 use std::process::Command;
 use std::env;
@@ -42,6 +43,7 @@ impl<'a> ItemListController<'a> {
 
         self.print_command_info(&working_dir, &command)?;
         execute_command(&working_dir, &command);
+        item_storage::replace_timestamp(self.item_list.selected_item());
         Ok(())
     }
 
