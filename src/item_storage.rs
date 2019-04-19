@@ -54,6 +54,36 @@ impl ItemStorage {
         lines.into_iter().map(|line| { get_cmd(&line) }).collect()
     }
 
+    pub fn add_item(&self, args: &mut Vec<String>) -> std::io::Result<()> {
+    let mut prefix = String::from("");
+    if args[0] == "-d" {
+        args.remove(0);
+        if args.is_empty() {
+            println!("Error: Must add command if specifying -d");
+            process::exit(1);
+        }
+
+        let cwd = env::current_dir().unwrap().as_path().to_str().unwrap().to_string();
+        prefix = format!("[{}]", cwd);    
+    }
+
+    let entry_without_timestamp = format!("{}{}", prefix, args.join(" "));
+
+    if ItemStorage::new(&get_home_dir()).read_items().contains(&entry_without_timestamp) {
+        println!("{}", style("Not adding duplicate entry").red());
+        return Ok(());
+    }
+
+    let item_file = format!("{}/items.txt", self.home_dir);
+
+    let entry = format!("{} {}", get_now_timestamp(), entry_without_timestamp);
+    let mut file = OpenOptions::new().append(true).open(&item_file)?;
+    write!(file, "{}\n", entry)?;
+    println!("Added entry: {}", style(entry).green());
+    return Ok(());
+}
+
+
 }
 
 pub fn add_item(args: &mut Vec<String>) -> std::io::Result<()> {

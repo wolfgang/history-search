@@ -1,8 +1,9 @@
 use std::path::Path;
-use std::fs::{remove_dir_all, OpenOptions};
+use std::fs::{remove_dir_all, File, OpenOptions};
 use std::io::prelude::*;
+use regex::Regex;
 
-
+use rp::item_storage;
 use rp::item_storage::ItemStorage;
 
 const HOME_DIR : &str = "/tmp/replay_test";
@@ -53,6 +54,35 @@ fn read_items_returns_items_sorted_by_timestamp_descending() {
     file.write_all(b"1 entry1\n2 entry2\n3 entry3").unwrap();
 
     assert_eq!(vec!("entry3", "entry2", "entry1"), item_storage.read_items());
+}
+
+#[test]
+fn add_item_adds_item_with_timestamp_to_file() {
+    remove_home_dir();
+    let item_storage = ItemStorage::new(HOME_DIR);
+    {
+        let mut file = OpenOptions::new()
+                    .write(true)
+                    .open(ITEMS_FILE)
+                    .expect("Failed to open items file");            
+        file.write_all(b"1 entry1\n").unwrap();
+    }
+
+    let mut args = vec!(String::from("entry2"));
+    item_storage.add_item(&mut args).unwrap();
+    let mut file = File::open(ITEMS_FILE).unwrap();
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).unwrap();
+
+    let re = Regex::new(r"1 entry1\n \d+ entry2\n").unwrap();
+    assert!(re.is_match(&contents), format!("Contents should be: {}", contents));
+
+    // assert_eq!("1 entry1\n 2 entry2\n", contents);
+
+
+
+
+
 }
 
 fn remove_home_dir()  {
