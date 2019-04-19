@@ -42,9 +42,8 @@ impl ItemStorage {
 
         let mut lines = Vec::new();
 
-        for (_, line) in reader.lines().enumerate() { 
-            let line = line.unwrap();
-            lines.push(line.to_string());
+        for line in reader.lines() { 
+            lines.push(line.unwrap().to_string());
         }
 
         lines.sort_by(|line_a: &String, line_b: &String| {
@@ -55,7 +54,6 @@ impl ItemStorage {
         });
 
         lines.into_iter().map(|line| { get_cmd(&line) }).collect()
-
     }
 
 }
