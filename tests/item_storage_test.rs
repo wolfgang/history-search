@@ -56,9 +56,19 @@ fn add_item_adds_item_with_timestamp_to_file() {
     let item_storage = ItemStorage::new(HOME_DIR);
     write_items_file("1 entry1\n");
 
-    let mut args = vec!(String::from("entry2"));
+    let mut args = vec!(String::from("second"), String::from("entry"));
     item_storage.add_item(&mut args).unwrap();
-    assert_items_file_matches(r"1 entry1\s+\d+\s+entry2");
+    assert_items_file_matches(r"1 entry1\s+\d+\s+second entry");
+}
+
+#[test]
+fn add_item_does_not_add_duplicates() {
+    remove_home_dir();
+    let item_storage = ItemStorage::new(HOME_DIR);
+    write_items_file("1 first entry\n");
+    let mut args = vec!(String::from("first"), String::from("entry"));
+    item_storage.add_item(&mut args).unwrap();
+    assert_items_file_matches(r"^1 first entry\n$");
 }
 
 fn remove_home_dir()  {
@@ -80,7 +90,7 @@ fn assert_items_file_matches(regex_str: &str) {
     file.read_to_string(&mut contents).unwrap();
 
     let re = Regex::new(regex_str).unwrap();
-    assert!(re.is_match(&contents), format!("Item file contents don't match: {}", contents));
+    assert!(re.is_match(&contents), format!("Item file contents don't match: \n{}", contents));
 
 }
 
