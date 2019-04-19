@@ -11,7 +11,7 @@ use console::{style};
 use std::env;
 
 pub struct ItemStorage {
-
+    home_dir: String
 }
 
 impl ItemStorage {
@@ -32,8 +32,32 @@ impl ItemStorage {
                 .expect("Create file failed");            
         }
 
-        ItemStorage {}
+        ItemStorage {home_dir: home_dir.to_string()}
     }
+
+    pub fn read_items(&self) -> Vec<String> {
+        let item_file = format!("{}/items.txt", self.home_dir);
+        let file = File::open(item_file).unwrap();
+        let reader = BufReader::new(file);
+
+        let mut lines = Vec::new();
+
+        for (_, line) in reader.lines().enumerate() { 
+            let line = line.unwrap();
+            lines.push(line.to_string());
+        }
+
+        lines.sort_by(|line_a: &String, line_b: &String| {
+            let timestamp_a = get_timestamp(line_a);
+            let timestamp_b = get_timestamp(line_b);
+
+            timestamp_b.partial_cmp(&timestamp_a).unwrap()
+        });
+
+        lines.into_iter().map(|line| { get_cmd(&line) }).collect()
+
+    }
+
 }
 
 
