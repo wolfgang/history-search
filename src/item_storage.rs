@@ -74,8 +74,7 @@ pub fn replace_timestamp(cmd: &str) -> Vec<String> {
     }
 
     lines.into_iter().map(|line| {
-        let after_ts = line.find(' ').unwrap_or(0);
-        let line_cmd = &line[after_ts + 1..];
+        let line_cmd = get_cmd(&line);
         if line_cmd == cmd {
             let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
             format!("{} {}", timestamp.as_secs(), cmd)
