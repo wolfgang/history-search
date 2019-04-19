@@ -13,7 +13,7 @@ fn main() -> std::io::Result<()> {
 
     if !args.is_empty() {
         if args[0] == "-h" { return display_help() }
-        return item_storage::add_item(&mut args);
+        return item_storage.add_item(&mut args);
     }
 
     let items = item_storage.read_items();
