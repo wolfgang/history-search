@@ -51,16 +51,12 @@ pub fn read_items() -> Vec<String> {
         lines.push(line.to_string());
     }
 
-    lines.sort_by(|a: &String, b: &String| {
-        let re = Regex::new(r"^(\d+)\s+(.*)").unwrap();
-        let caps_a = re.captures(a).unwrap();
-        let timestamp_a = caps_a.get(1).unwrap().as_str().parse::<u64>().unwrap();
-        let caps_b = re.captures(b).unwrap();
-        let timestamp_b = caps_b.get(1).unwrap().as_str().parse::<u64>().unwrap();
+    lines.sort_by(|line_a: &String, line_b: &String| {
+        let timestamp_a = get_timestamp(line_a);
+        let timestamp_b = get_timestamp(line_b);
 
         timestamp_b.partial_cmp(&timestamp_a).unwrap()
     });
-
 
     lines.into_iter().map(|line| {
         let after_ts = line.find(' ').unwrap_or(0);
@@ -68,6 +64,12 @@ pub fn read_items() -> Vec<String> {
         s.to_string()
     }).collect()
 
+}
+
+fn get_timestamp(line: &str) -> u64 {
+    let re = Regex::new(r"^(\d+)\s+(.*)").unwrap();
+    let caps = re.captures(line).unwrap();
+    caps.get(1).unwrap().as_str().parse::<u64>().unwrap()
 }
 
 pub fn init() {
