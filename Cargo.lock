@@ -298,6 +298,7 @@ version = "0.1.0"
 dependencies = [
  "console 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "crossterm_cursor 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "regex 1.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

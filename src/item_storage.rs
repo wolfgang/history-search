@@ -5,6 +5,7 @@ use std::io::{BufRead, BufReader};
 use std::fs::{OpenOptions, DirBuilder, File};
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
+use regex::Regex;
 
 use console::{style};
 
@@ -46,10 +47,15 @@ pub fn read_items() -> Vec<String> {
 
     for (_, line) in reader.lines().enumerate() {
         let line = line.unwrap();
-        let parts : Vec<&str> = line.split(" ").collect();
-        let entry_without_ts = parts[1..].join(" ").to_string();
 
-        items.push(entry_without_ts);
+        let re = Regex::new(r"^(\d+)\s+(.*)").unwrap();
+        let caps = re.captures(&line).unwrap();
+        let timestamp = caps.get(1).unwrap().as_str().parse::<u64>().unwrap();
+        let entry = caps.get(2).unwrap().as_str();
+
+        println!("{} -- {}", timestamp, entry);
+
+        items.push(entry.to_string());
     }
 
     items
