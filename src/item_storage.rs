@@ -9,6 +9,11 @@ use console::{style};
 
 use std::env;
 
+
+pub fn init() -> ItemStorage {
+    ItemStorage::new(&get_default_home_dir())
+}
+
 pub struct ItemStorage {
     item_file: String
 }
@@ -81,7 +86,6 @@ impl ItemStorage {
     }
 
     pub fn replace_timestamp(&self, cmd: &str) {
-
         let file = File::open(&self.item_file).unwrap();
         let reader = BufReader::new(file);
 
@@ -105,31 +109,6 @@ impl ItemStorage {
 
 }
 
-pub fn replace_timestamp(cmd: &str) -> Vec<String> {
-    let file = File::open(get_item_file()).unwrap();
-    let reader = BufReader::new(file);
-
-    let mut lines = Vec::new();
-
-    for (_, line) in reader.lines().enumerate() { 
-        let line = line.unwrap();
-        lines.push(line.to_string());
-    }
-
-    let new_lines: Vec<String> = lines.into_iter().map(|line| {
-        let line_cmd = get_cmd(&line);
-        if line_cmd == cmd { format!("{} {}", get_now_timestamp(), cmd) }
-        else { line.to_string() }
-    }).collect();
-
-
-    let mut file = OpenOptions::new().write(true).open(get_item_file()).unwrap();
-    write!(file, "{}", new_lines.join("\n")).unwrap();
-
-    new_lines
-
-}
-
 fn get_now_timestamp() -> u64 {
     SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()
 }
@@ -146,15 +125,8 @@ fn get_timestamp(line: &str) -> u64 {
     s.to_string().parse().unwrap()
 }
 
-pub fn init() -> ItemStorage {
-    ItemStorage::new(&get_home_dir())
-}
 
-fn get_item_file() -> String {
-    format!("{}/items.txt", get_home_dir())
-}
-
-fn get_home_dir() -> String {
+fn get_default_home_dir() -> String {
     let home = env::var("HOME").unwrap();
     format!("{}/.rp", home)
 }

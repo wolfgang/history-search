@@ -19,7 +19,7 @@ fn main() -> std::io::Result<()> {
     let items = item_storage.read_items();
     let term = Term::stdout();
     let mut item_list = ItemList::new(&term, &items);
-    return ItemListController::new(&term, &mut item_list).run();
+    return ItemListController::new(&term, &mut item_list, &item_storage).run();
 }
 
 fn display_help() -> std::io::Result<()> {

@@ -1,5 +1,5 @@
 use crate::item_list::ItemList;
-use crate::item_storage;
+use crate::item_storage::ItemStorage;
 
 use std::process::Command;
 use std::env;
@@ -8,15 +8,21 @@ use console::{Key, Term, Style};
 
 pub struct ItemListController<'a> {
     term: &'a Term,
-    item_list: &'a mut ItemList<'a>
+    item_list: &'a mut ItemList<'a>,
+    item_storage: &'a ItemStorage
 }
 
 impl<'a> ItemListController<'a> {
     pub fn new(
         term: &'a Term, 
-        item_list: &'a mut ItemList<'a>) -> ItemListController<'a> {
+        item_list: &'a mut ItemList<'a>,
+        item_storage: &'a ItemStorage) -> ItemListController<'a> {
 
-        ItemListController { term: term, item_list: item_list }
+        ItemListController { 
+            term: term, 
+            item_list: item_list,
+            item_storage: item_storage
+        }
     }
 
     pub fn run(&mut self) -> std::io::Result<()> {
@@ -43,7 +49,7 @@ impl<'a> ItemListController<'a> {
 
         self.print_command_info(&working_dir, &command)?;
         execute_command(&working_dir, &command);
-        item_storage::replace_timestamp(self.item_list.selected_item());
+        self.item_storage.replace_timestamp(self.item_list.selected_item());
         Ok(())
     }
 
