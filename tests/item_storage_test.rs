@@ -49,8 +49,8 @@ fn add_item_adds_item_with_timestamp_to_file() {
     let item_storage = fresh_item_storage();
     write_items_file("1 entry1\n");
 
-    let mut args = vec!(String::from("second"), String::from("entry"));
-    item_storage.add_item(&mut args).unwrap();
+    let args = vec!(String::from("second"), String::from("entry"));
+    item_storage.add_item(&args).unwrap();
     assert_items_file_matches(r"1 entry1\n\d+ second entry");
 }
 
@@ -59,8 +59,8 @@ fn add_item_does_not_add_duplicates() {
     let item_storage = fresh_item_storage();
     write_items_file("1 first entry\n");
 
-    let mut args = vec!(String::from("first"), String::from("entry"));
-    item_storage.add_item(&mut args).unwrap();
+    let args = vec!(String::from("first"), String::from("entry"));
+    item_storage.add_item(&args).unwrap();
     assert_items_file_matches(r"^1 first entry\n$");
 }
 
@@ -68,8 +68,8 @@ fn add_item_does_not_add_duplicates() {
 fn add_item_add_current_dir_if_minus_d_option_is_given() {
     let item_storage = fresh_item_storage();
 
-    let mut args = vec!(String::from("-d"), String::from("entry"));
-    item_storage.add_item(&mut args).unwrap();    
+    let args = vec!(String::from("-d"), String::from("entry"));
+    item_storage.add_item(&args).unwrap();    
     assert_items_file_matches(r"^\d+ \[.*/replay\]entry\n$");
 }
 
@@ -78,8 +78,8 @@ fn add_item_add_current_dir_if_minus_d_option_is_given() {
 fn add_item_panics_if_no_directory_given_after_minus_d() {
     let item_storage = fresh_item_storage();
 
-    let mut args = vec!(String::from("-d"));
-    item_storage.add_item(&mut args).unwrap();        
+    let args = vec!(String::from("-d"));
+    item_storage.add_item(&args).unwrap();        
 }
 
 #[test]

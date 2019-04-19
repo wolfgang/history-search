@@ -54,18 +54,19 @@ impl ItemStorage {
         lines.into_iter().map(|line| { parse_command(&line) }).collect()
     }
 
-    pub fn add_item(&self, args: &mut Vec<String>) -> std::io::Result<()> {
+    pub fn add_item(&self, args: &Vec<String>) -> std::io::Result<()> {
         let mut prefix = String::from("");
+        let mut arg_index = 0;
         if args[0] == "-d" {
-            args.remove(0);
-            if args.is_empty() {
+            arg_index += 1;
+            if arg_index >= args.len() {
                 panic!("Error: Must add command if specifying -d");
             }
 
             prefix = format!("[{}]", get_cwd());    
         }
 
-        let entry_without_timestamp = format!("{}{}", prefix, args.join(" "));
+        let entry_without_timestamp = format!("{}{}", prefix, args[arg_index..].join(" "));
 
         if self.read_items().contains(&entry_without_timestamp) {
             println!("{}", style("Not adding duplicate entry").red());
