@@ -1,13 +1,9 @@
 
-mod item_storage;
-mod item_list;
-mod item_list_controller;
-
-
 use std::env;
 use console::{Term};
-use item_list::ItemList;
-use item_list_controller::ItemListController;
+use rp::item_storage;
+use rp::item_list::ItemList;
+use rp::item_list_controller::ItemListController;
 
 fn main() -> std::io::Result<()> {
     let mut args: Vec<String> = env::args().collect();
