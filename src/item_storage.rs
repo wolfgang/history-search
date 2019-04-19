@@ -66,6 +66,31 @@ pub fn read_items() -> Vec<String> {
 
 }
 
+pub fn replace_timestamp(cmd: &str) -> Vec<String> {
+    let file = File::open(get_item_file()).unwrap();
+    let reader = BufReader::new(file);
+
+    let mut lines = Vec::new();
+
+    for (_, line) in reader.lines().enumerate() { 
+        let line = line.unwrap();
+        lines.push(line.to_string());
+    }
+
+    lines.into_iter().map(|line| {
+        let after_ts = line.find(' ').unwrap_or(0);
+        let line_cmd = &line[after_ts + 1..];
+        if line_cmd == cmd {
+            let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+            format!("{} {}", timestamp.as_secs(), cmd)
+        }
+        else {
+            line_cmd.to_string()
+        }
+    }).collect()
+
+}
+
 fn get_timestamp(line: &str) -> u64 {
     let re = Regex::new(r"^(\d+)\s+(.*)").unwrap();
     let caps = re.captures(line).unwrap();

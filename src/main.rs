@@ -15,6 +15,11 @@ fn main() -> std::io::Result<()> {
 
     item_storage::init();
 
+    let result = item_storage::replace_timestamp("echo HELLO");
+    println!("{:?}", result);
+    return Ok(());
+
+
     if !args.is_empty() {
         if args[0] == "-h" { return display_help() }
         return item_storage::add_item(&mut args);
