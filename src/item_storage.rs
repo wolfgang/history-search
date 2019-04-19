@@ -69,7 +69,7 @@ impl ItemStorage {
 
     let entry_without_timestamp = format!("{}{}", prefix, args.join(" "));
 
-    if ItemStorage::new(&get_home_dir()).read_items().contains(&entry_without_timestamp) {
+    if self.read_items().contains(&entry_without_timestamp) {
         println!("{}", style("Not adding duplicate entry").red());
         return Ok(());
     }
