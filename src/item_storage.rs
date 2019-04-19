@@ -46,16 +46,20 @@ pub fn read_items() -> Vec<String> {
     let mut items = Vec::new();
 
     for (_, line) in reader.lines().enumerate() {
-        let line = line.unwrap();
+        let mut line = line.unwrap();
 
-        let re = Regex::new(r"^(\d+)\s+(.*)").unwrap();
-        let caps = re.captures(&line).unwrap();
-        let timestamp = caps.get(1).unwrap().as_str().parse::<u64>().unwrap();
-        let entry = caps.get(2).unwrap().as_str();
+        let after_ts = line.find(' ').unwrap_or(0);
 
-        println!("{} -- {}", timestamp, entry);
+        let entry = line.split_off(after_ts+1);
 
-        items.push(entry.to_string());
+        // let re = Regex::new(r"^(\d+)\s+(.*)").unwrap();
+        // let caps = re.captures(&line).unwrap();
+        // let timestamp = caps.get(1).unwrap().as_str().parse::<u64>().unwrap();
+        // let entry = caps.get(2).unwrap().as_str();
+
+        // println!("{} -- {}", timestamp, entry);
+
+        items.push(entry);
     }
 
     items
