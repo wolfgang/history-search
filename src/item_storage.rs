@@ -40,11 +40,9 @@ impl ItemStorage {
         let file = File::open(item_file).unwrap();
         let reader = BufReader::new(file);
 
-        let mut lines = Vec::new();
-
-        for line in reader.lines() { 
-            lines.push(line.unwrap().to_string());
-        }
+        let mut lines : Vec<String> = reader.lines()
+            .map(|line| { line.unwrap().to_string()})
+            .collect();
 
         lines.sort_by(|line_a: &String, line_b: &String| {
             let timestamp_a = get_timestamp(line_a);
