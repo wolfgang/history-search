@@ -82,6 +82,15 @@ fn add_item_panics_if_no_directory_given_after_minus_d() {
     item_storage.add_item(&mut args).unwrap();        
 }
 
+#[test]
+fn replace_timestamp_updates_timestamp_of_given_item() {
+    let item_storage = fresh_item_storage();
+    write_items_file("1 first entry\n2 second entry");
+    item_storage.replace_timestamp("second entry");
+    assert_items_file_matches(r"1 first entry\n\d{5,} second entry");
+}
+
+
 fn fresh_item_storage() -> ItemStorage {
     remove_home_dir();
     ItemStorage::new(HOME_DIR)

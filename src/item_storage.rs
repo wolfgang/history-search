@@ -80,6 +80,31 @@ impl ItemStorage {
         println!("Added entry: {}", style(entry).green());
         return Ok(());
     }
+
+    pub fn replace_timestamp(&self, cmd: &str) {
+        let item_file = format!("{}/items.txt", self.home_dir);
+
+        let file = File::open(&item_file).unwrap();
+        let reader = BufReader::new(file);
+
+        let mut lines = Vec::new();
+
+        for (_, line) in reader.lines().enumerate() { 
+            let line = line.unwrap();
+            lines.push(line.to_string());
+        }
+
+        let new_lines: Vec<String> = lines.into_iter().map(|line| {
+            let line_cmd = get_cmd(&line);
+            if line_cmd == cmd { format!("{} {}", get_now_timestamp(), cmd) }
+            else { line.to_string() }
+        }).collect();
+
+
+        let mut file = OpenOptions::new().write(true).open(&item_file).unwrap();
+        write!(file, "{}", new_lines.join("\n")).unwrap();
+    }
+
 }
 
 pub fn replace_timestamp(cmd: &str) -> Vec<String> {
