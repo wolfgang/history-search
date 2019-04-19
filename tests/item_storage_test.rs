@@ -46,12 +46,7 @@ fn read_items_returns_empty_vector_if_home_dir_is_fresh() {
 fn read_items_returns_items_sorted_by_timestamp_descending() {
     remove_home_dir();
     let item_storage = ItemStorage::new(HOME_DIR);
-    let mut file = OpenOptions::new()
-                .write(true)
-                .open(ITEMS_FILE)
-                .expect("Failed to open items file");            
-    file.write_all(b"1 entry1\n2 entry2\n3 entry3").unwrap();
-
+    write_items_file("1 entry1\n2 entry2\n3 entry3");
     assert_eq!(vec!("entry3", "entry2", "entry1"), item_storage.read_items());
 }
 
@@ -59,13 +54,7 @@ fn read_items_returns_items_sorted_by_timestamp_descending() {
 fn add_item_adds_item_with_timestamp_to_file() {
     remove_home_dir();
     let item_storage = ItemStorage::new(HOME_DIR);
-    {
-        let mut file = OpenOptions::new()
-                    .write(true)
-                    .open(ITEMS_FILE)
-                    .expect("Failed to open items file");            
-        file.write_all(b"1 entry1\n").unwrap();
-    }
+    write_items_file("1 entry1\n");
 
     let mut args = vec!(String::from("entry2"));
     item_storage.add_item(&mut args).unwrap();
@@ -81,6 +70,15 @@ fn add_item_adds_item_with_timestamp_to_file() {
 fn remove_home_dir()  {
     let home_dir = format!("/tmp/replay_test");
     remove_dir_all(&home_dir).unwrap_or_default();    
+}
+
+fn write_items_file(contents: &str) {
+    let mut file = OpenOptions::new()
+                .write(true)
+                .open(ITEMS_FILE)
+                .expect("Failed to open items file");            
+    file.write_all(contents.as_bytes()).unwrap();
+
 }
 
 fn assert_path_exists(path: &str) {
