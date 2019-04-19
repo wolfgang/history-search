@@ -58,11 +58,7 @@ pub fn read_items() -> Vec<String> {
         timestamp_b.partial_cmp(&timestamp_a).unwrap()
     });
 
-    lines.into_iter().map(|line| {
-        let after_ts = line.find(' ').unwrap_or(0);
-        let s = &line[after_ts + 1..];
-        s.to_string()
-    }).collect()
+    lines.into_iter().map(|line| { get_cmd(&line) }).collect()
 
 }
 
@@ -89,6 +85,12 @@ pub fn replace_timestamp(cmd: &str) -> Vec<String> {
         }
     }).collect()
 
+}
+
+fn get_cmd(line: &str) -> String {
+    let after_ts = line.find(' ').unwrap_or(0);
+    let s = &line[after_ts + 1..];
+    s.to_string()
 }
 
 fn get_timestamp(line: &str) -> u64 {
