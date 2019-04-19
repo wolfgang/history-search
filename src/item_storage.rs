@@ -4,6 +4,8 @@ use std::process;
 use std::io::{BufRead, BufReader};
 use std::fs::{OpenOptions, DirBuilder, File};
 use std::path::Path;
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use console::{style};
 
 use std::env;
@@ -21,7 +23,9 @@ pub fn add_item(args: &mut Vec<String>) -> std::io::Result<()> {
         prefix = format!("[{}]", cwd);    
     }
 
-    let entry = format!("{}{}", prefix, args.join(" "));
+    let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+
+    let entry = format!("{} {}{}", timestamp.as_secs(), prefix, args.join(" "));
 
     if read_items().contains(&entry) {
         println!("{}", style("Not adding duplicate entry").red());
@@ -53,7 +57,9 @@ pub fn init() {
         DirBuilder::new()
             .recursive(false)
             .create(get_home_dir()).expect("Failed to create home dir");
-    
+    }
+
+    if !Path::new(&get_item_file()).exists() {
         File::create(get_item_file()).expect("Create file failed");
     }
 }
