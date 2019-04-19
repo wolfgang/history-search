@@ -18,8 +18,9 @@ fn new_creates_home_dir() {
 
 #[test]
 fn new_does_not_create_home_dir_if_it_already_exists() {
-    let _item_storage1 = ItemStorage::new(HOME_DIR);
-    let _item_storage2 = ItemStorage::new(HOME_DIR);
+    remove_home_dir();
+    ItemStorage::new(HOME_DIR);
+    ItemStorage::new(HOME_DIR);
 }
 
 #[test]
@@ -30,30 +31,22 @@ fn new_creates_item_file_if_home_dir_does_not_exist() {
 }
 
 #[test]
-fn new_does_not_create_item_file_if_it_already_exists() {
-    ItemStorage::new(HOME_DIR);
-    ItemStorage::new(HOME_DIR);
-}
-
-#[test]
 fn read_items_returns_empty_vector_if_home_dir_is_fresh() {
-    remove_home_dir();
-    let item_storage = ItemStorage::new(HOME_DIR);
+    let item_storage = fresh_item_storage();
     assert_eq!(0, item_storage.read_items().len());
 }
 
 #[test]
 fn read_items_returns_items_sorted_by_timestamp_descending() {
-    remove_home_dir();
-    let item_storage = ItemStorage::new(HOME_DIR);
+    let item_storage = fresh_item_storage();
+
     write_items_file("1 entry1\n2 entry2\n3 entry3");
     assert_eq!(vec!("entry3", "entry2", "entry1"), item_storage.read_items());
 }
 
 #[test]
 fn add_item_adds_item_with_timestamp_to_file() {
-    remove_home_dir();
-    let item_storage = ItemStorage::new(HOME_DIR);
+    let item_storage = fresh_item_storage();
     write_items_file("1 entry1\n");
 
     let mut args = vec!(String::from("second"), String::from("entry"));
@@ -63,9 +56,9 @@ fn add_item_adds_item_with_timestamp_to_file() {
 
 #[test]
 fn add_item_does_not_add_duplicates() {
-    remove_home_dir();
-    let item_storage = ItemStorage::new(HOME_DIR);
+    let item_storage = fresh_item_storage();
     write_items_file("1 first entry\n");
+
     let mut args = vec!(String::from("first"), String::from("entry"));
     item_storage.add_item(&mut args).unwrap();
     assert_items_file_matches(r"^1 first entry\n$");
@@ -73,8 +66,8 @@ fn add_item_does_not_add_duplicates() {
 
 #[test]
 fn add_item_add_current_dir_if_minus_d_option_is_given() {
-    remove_home_dir();
-    let item_storage = ItemStorage::new(HOME_DIR);
+    let item_storage = fresh_item_storage();
+
     let mut args = vec!(String::from("-d"), String::from("entry"));
     item_storage.add_item(&mut args).unwrap();    
     assert_items_file_matches(r"^\d+ \[.*/replay\]entry\n$");
@@ -83,10 +76,15 @@ fn add_item_add_current_dir_if_minus_d_option_is_given() {
 #[test]
 #[should_panic(expected="Must add command")]
 fn add_item_panics_if_no_directory_given_after_minus_d() {
-    remove_home_dir();
-    let item_storage = ItemStorage::new(HOME_DIR);
+    let item_storage = fresh_item_storage();
+
     let mut args = vec!(String::from("-d"));
     item_storage.add_item(&mut args).unwrap();        
+}
+
+fn fresh_item_storage() -> ItemStorage {
+    remove_home_dir();
+    ItemStorage::new(HOME_DIR)
 }
 
 fn remove_home_dir()  {
@@ -109,7 +107,6 @@ fn assert_items_file_matches(regex_str: &str) {
 
     let re = Regex::new(regex_str).unwrap();
     assert!(re.is_match(&contents), format!("Item file contents don't match: \n{}", contents));
-
 }
 
 fn assert_path_exists(path: &str) {
