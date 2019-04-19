@@ -55,13 +55,14 @@ pub fn add_item(args: &mut Vec<String>) -> std::io::Result<()> {
         prefix = format!("[{}]", cwd);    
     }
 
-    let entry = format!("{} {}{}", get_now_timestamp(), prefix, args.join(" "));
+    let entry_without_timestamp = format!("{}{}", prefix, args.join(" "));
 
-    if read_items().contains(&entry) {
+    if read_items().contains(&entry_without_timestamp) {
         println!("{}", style("Not adding duplicate entry").red());
         return Ok(());
     }
 
+    let entry = format!("{} {}", get_now_timestamp(), entry_without_timestamp);
     let mut file = OpenOptions::new().append(true).open(get_item_file())?;
     write!(file, "{}\n", entry)?;
     println!("Added entry: {}", style(entry).green());
