@@ -18,7 +18,7 @@ impl ItemStorage {
     pub fn new(home_dir: &str) -> ItemStorage {
         let home_dir_path = Path::new(home_dir);
 
-        if !home_dir_path.exists() {
+        if false {
             DirBuilder::new()
                 .recursive(false)
                 .create(home_dir).expect("Failed to create home dir");
