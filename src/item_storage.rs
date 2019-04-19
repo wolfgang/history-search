@@ -10,7 +10,7 @@ use console::{style};
 use std::env;
 
 pub struct ItemStorage {
-    home_dir: String
+    item_file: String
 }
 
 impl ItemStorage {
@@ -31,12 +31,13 @@ impl ItemStorage {
                 .expect("Create file failed");            
         }
 
-        ItemStorage {home_dir: home_dir.to_string()}
+        ItemStorage {
+            item_file: format!("{}/items.txt", home_dir)
+        }
     }
 
     pub fn read_items(&self) -> Vec<String> {
-        let item_file = format!("{}/items.txt", self.home_dir);
-        let file = File::open(item_file).unwrap();
+        let file = File::open(&self.item_file).unwrap();
         let reader = BufReader::new(file);
 
         let mut lines : Vec<String> = reader.lines()
@@ -72,19 +73,16 @@ impl ItemStorage {
             return Ok(());
         }
 
-        let item_file = format!("{}/items.txt", self.home_dir);
-
         let entry = format!("{} {}", get_now_timestamp(), entry_without_timestamp);
-        let mut file = OpenOptions::new().append(true).open(&item_file)?;
+        let mut file = OpenOptions::new().append(true).open(&self.item_file)?;
         write!(file, "{}\n", entry)?;
         println!("Added entry: {}", style(entry).green());
         return Ok(());
     }
 
     pub fn replace_timestamp(&self, cmd: &str) {
-        let item_file = format!("{}/items.txt", self.home_dir);
 
-        let file = File::open(&item_file).unwrap();
+        let file = File::open(&self.item_file).unwrap();
         let reader = BufReader::new(file);
 
         let mut lines = Vec::new();
@@ -101,7 +99,7 @@ impl ItemStorage {
         }).collect();
 
 
-        let mut file = OpenOptions::new().write(true).open(&item_file).unwrap();
+        let mut file = OpenOptions::new().write(true).open(&self.item_file).unwrap();
         write!(file, "{}", new_lines.join("\n")).unwrap();
     }
 
