@@ -5,8 +5,6 @@ use std::io::{BufRead, BufReader};
 use std::fs::{OpenOptions, DirBuilder, File};
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
-use regex::Regex;
-
 
 use console::{style};
 
@@ -99,9 +97,9 @@ fn get_cmd(line: &str) -> String {
 }
 
 fn get_timestamp(line: &str) -> u64 {
-    let re = Regex::new(r"^(\d+)\s+(.*)").unwrap();
-    let caps = re.captures(line).unwrap();
-    caps.get(1).unwrap().as_str().parse::<u64>().unwrap()
+    let after_ts = line.find(' ').unwrap_or(0);
+    let s = &line[..after_ts];
+    s.to_string().parse().unwrap()
 }
 
 pub fn init() {
