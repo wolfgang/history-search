@@ -132,15 +132,7 @@ fn get_timestamp(line: &str) -> u64 {
 }
 
 pub fn init() {
-    if !Path::new(&get_home_dir()).exists() {
-        DirBuilder::new()
-            .recursive(false)
-            .create(get_home_dir()).expect("Failed to create home dir");
-    }
-
-    if !Path::new(&get_item_file()).exists() {
-        File::create(get_item_file()).expect("Create file failed");
-    }
+    ItemStorage::new(&get_home_dir());
 }
 
 fn get_item_file() -> String {
