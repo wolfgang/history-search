@@ -8,7 +8,7 @@ const HOME_DIR : &str = "/tmp/replay_test";
 #[test]
 fn new_creates_home_dir() {
     setup();
-    assert!(!Path::new(HOME_DIR).exists(), "Home directory already exists");
+    assert_path_exists(Path::new(HOME_DIR));
     let _item_storage = ItemStorage::new(HOME_DIR);
     assert!(Path::new(HOME_DIR).exists(), "Home directory was not created");
 }
@@ -30,4 +30,8 @@ fn new_creates_item_file_if_home_dir_does_not_exist() {
 fn setup()  {
     let home_dir = format!("/tmp/replay_test");
     remove_dir_all(&home_dir).unwrap_or_default();    
+}
+
+fn assert_path_exists(path: &Path) {
+    assert!(path.exists(), format!("Expected path {} to exist", path.to_str().unwrap()));
 }
