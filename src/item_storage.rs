@@ -42,12 +42,7 @@ impl ItemStorage {
     }
 
     pub fn read_items(&self) -> Vec<String> {
-        let file = File::open(&self.item_file).unwrap();
-        let reader = BufReader::new(file);
-
-        let mut lines : Vec<String> = reader.lines()
-            .map(|line| { line.unwrap().to_string() })
-            .collect();
+        let mut lines = self.read_lines_from_item_file();
 
         lines.sort_by(|line_a: &String, line_b: &String| {
             let timestamp_a = get_timestamp(line_a);
@@ -86,15 +81,7 @@ impl ItemStorage {
     }
 
     pub fn replace_timestamp(&self, cmd: &str) {
-        let file = File::open(&self.item_file).unwrap();
-        let reader = BufReader::new(file);
-
-        let mut lines = Vec::new();
-
-        for (_, line) in reader.lines().enumerate() { 
-            let line = line.unwrap();
-            lines.push(line.to_string());
-        }
+        let lines = self.read_lines_from_item_file();
 
         let new_lines: Vec<String> = lines.into_iter().map(|line| {
             let line_cmd = get_cmd(&line);
@@ -107,7 +94,17 @@ impl ItemStorage {
         write!(file, "{}", new_lines.join("\n")).unwrap();
     }
 
+    fn read_lines_from_item_file(&self) -> Vec<String> {
+        let file = File::open(&self.item_file).unwrap();
+        let reader = BufReader::new(file);
+
+        reader.lines()
+            .map(|line| { line.unwrap().to_string() })
+            .collect()
+    }
+
 }
+
 
 fn get_now_timestamp() -> u64 {
     SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()
