@@ -61,15 +61,13 @@ pub fn read_items() -> Vec<String> {
         timestamp_b.partial_cmp(&timestamp_a).unwrap()
     });
 
-    let mut items = Vec::new();
 
-    for line in lines.iter() {
-        let mut line = line.to_string();
+    lines.into_iter().map(|line| {
         let after_ts = line.find(' ').unwrap_or(0);
-        items.push(line.split_off(after_ts+1));
-    }
+        let s = &line[after_ts + 1..];
+        s.to_string()
+    }).collect()
 
-    items
 }
 
 pub fn init() {
