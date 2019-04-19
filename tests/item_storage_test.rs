@@ -3,7 +3,6 @@ use std::fs::{remove_dir_all, File, OpenOptions};
 use std::io::prelude::*;
 use regex::Regex;
 
-use rp::item_storage;
 use rp::item_storage::ItemStorage;
 
 const HOME_DIR : &str = "/tmp/replay_test";
@@ -74,14 +73,8 @@ fn add_item_adds_item_with_timestamp_to_file() {
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
 
-    let re = Regex::new(r"1 entry1\n \d+ entry2\n").unwrap();
-    assert!(re.is_match(&contents), format!("Contents should be: {}", contents));
-
-    // assert_eq!("1 entry1\n 2 entry2\n", contents);
-
-
-
-
+    let re = Regex::new(r"1 entry1\s+\d+\s+entry2").unwrap();
+    assert!(re.is_match(&contents), format!("Contents do not match: {}", contents));
 
 }
 
