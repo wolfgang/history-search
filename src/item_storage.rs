@@ -23,9 +23,7 @@ pub fn add_item(args: &mut Vec<String>) -> std::io::Result<()> {
         prefix = format!("[{}]", cwd);    
     }
 
-    let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-
-    let entry = format!("{} {}{}", timestamp.as_secs(), prefix, args.join(" "));
+    let entry = format!("{} {}{}", get_now_timestamp(), prefix, args.join(" "));
 
     if read_items().contains(&entry) {
         println!("{}", style("Not adding duplicate entry").red());
@@ -73,13 +71,8 @@ pub fn replace_timestamp(cmd: &str) -> Vec<String> {
 
     let new_lines: Vec<String> = lines.into_iter().map(|line| {
         let line_cmd = get_cmd(&line);
-        if line_cmd == cmd {
-            let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-            format!("{} {}", timestamp.as_secs(), cmd)
-        }
-        else {
-            line.to_string()
-        }
+        if line_cmd == cmd { format!("{} {}", get_now_timestamp(), cmd) }
+        else { line.to_string() }
     }).collect();
 
 
@@ -88,6 +81,10 @@ pub fn replace_timestamp(cmd: &str) -> Vec<String> {
 
     new_lines
 
+}
+
+fn get_now_timestamp() -> u64 {
+    SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()
 }
 
 fn get_cmd(line: &str) -> String {
