@@ -45,8 +45,11 @@ pub fn read_items() -> Vec<String> {
     let mut items = Vec::new();
 
     for (_, line) in reader.lines().enumerate() {
-        let line = line.unwrap(); // Ignore errors.
-        items.push(line);
+        let line = line.unwrap();
+        let parts : Vec<&str> = line.split(" ").collect();
+        let entry_without_ts = parts[1..].join(" ").to_string();
+
+        items.push(entry_without_ts);
     }
 
     items
