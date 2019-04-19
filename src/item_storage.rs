@@ -73,16 +73,22 @@ pub fn replace_timestamp(cmd: &str) -> Vec<String> {
         lines.push(line.to_string());
     }
 
-    lines.into_iter().map(|line| {
+    let new_lines: Vec<String> = lines.into_iter().map(|line| {
         let line_cmd = get_cmd(&line);
         if line_cmd == cmd {
             let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
             format!("{} {}", timestamp.as_secs(), cmd)
         }
         else {
-            line_cmd.to_string()
+            line.to_string()
         }
-    }).collect()
+    }).collect();
+
+
+    let mut file = OpenOptions::new().write(true).open(get_item_file()).unwrap();
+    write!(file, "{}", new_lines.join("\n")).unwrap();
+
+    new_lines
 
 }
 

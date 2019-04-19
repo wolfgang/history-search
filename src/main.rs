@@ -15,9 +15,9 @@ fn main() -> std::io::Result<()> {
 
     item_storage::init();
 
-    let result = item_storage::replace_timestamp("echo HELLO");
-    println!("{:?}", result);
-    return Ok(());
+    // let result = item_storage::replace_timestamp("echo HELLO3");
+    // println!("{:?}", result);
+    // return Ok(());
 
 
     if !args.is_empty() {
