@@ -24,7 +24,13 @@ impl ItemStorage {
                 .create(home_dir).expect("Failed to create home dir");
         }
 
-        File::create(home_dir_path.join("items.txt")).expect("Create file failed");
+        if !home_dir_path.join("items.txt").exists() {
+            OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(home_dir_path.join("items.txt"))
+                .expect("Create file failed");            
+        }
 
         ItemStorage {}
     }

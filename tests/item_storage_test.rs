@@ -1,6 +1,7 @@
 use std::path::Path;
 use std::fs::{remove_dir_all};
 
+
 use rp::item_storage::ItemStorage;
 
 const HOME_DIR : &str = "/tmp/replay_test";
@@ -25,6 +26,12 @@ fn new_creates_item_file_if_home_dir_does_not_exist() {
     setup();
     ItemStorage::new(HOME_DIR);
     assert_path_exists(ITEMS_FILE);
+}
+
+#[test]
+fn new_does_not_create_item_file_if_it_already_exists() {
+    ItemStorage::new(HOME_DIR);
+    ItemStorage::new(HOME_DIR);
 }
 
 fn setup()  {
