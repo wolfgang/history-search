@@ -58,13 +58,7 @@ fn add_item_adds_item_with_timestamp_to_file() {
 
     let mut args = vec!(String::from("entry2"));
     item_storage.add_item(&mut args).unwrap();
-    let mut file = File::open(ITEMS_FILE).unwrap();
-    let mut contents = String::new();
-    file.read_to_string(&mut contents).unwrap();
-
-    let re = Regex::new(r"1 entry1\s+\d+\s+entry2").unwrap();
-    assert!(re.is_match(&contents), format!("Contents do not match: {}", contents));
-
+    assert_items_file_matches(r"1 entry1\s+\d+\s+entry2");
 }
 
 fn remove_home_dir()  {
@@ -78,6 +72,15 @@ fn write_items_file(contents: &str) {
                 .open(ITEMS_FILE)
                 .expect("Failed to open items file");            
     file.write_all(contents.as_bytes()).unwrap();
+}
+
+fn assert_items_file_matches(regex_str: &str) {
+    let mut file = File::open(ITEMS_FILE).unwrap();
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).unwrap();
+
+    let re = Regex::new(regex_str).unwrap();
+    assert!(re.is_match(&contents), format!("Item file contents don't match: {}", contents));
 
 }
 
