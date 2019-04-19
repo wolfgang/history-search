@@ -8,6 +8,3 @@ edition = "2018"
 console = "0.7.5"
 crossterm_cursor = "0.2"
 regex = "1"
-
-[dev-dependencies]
-uuid = { version = "0.7", features = ["v4"] }

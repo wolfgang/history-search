@@ -38,24 +38,3 @@ fn display_help() -> std::io::Result<()> {
     return Ok(())
 
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::io::prelude::*;
-
-    #[test]
-    fn term_can_be_initialized() {
-        let mut term = Term::stdout();
-        term.write_line("HELLO").unwrap();
-        write_to_writer(&mut term, b"HELLO AGAIN").unwrap();
-    }
-
-    fn write_to_writer<W: Write>(writer: &mut W, buf: &[u8]) -> std::io::Result<()> {
-        writer.write(buf)?;
-        Ok(())
-
-    }
-}
-
-
