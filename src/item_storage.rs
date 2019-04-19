@@ -81,7 +81,7 @@ pub fn add_item(args: &mut Vec<String>) -> std::io::Result<()> {
 
     let entry_without_timestamp = format!("{}{}", prefix, args.join(" "));
 
-    if read_items().contains(&entry_without_timestamp) {
+    if ItemStorage::new(&get_home_dir()).read_items().contains(&entry_without_timestamp) {
         println!("{}", style("Not adding duplicate entry").red());
         return Ok(());
     }
@@ -91,28 +91,6 @@ pub fn add_item(args: &mut Vec<String>) -> std::io::Result<()> {
     write!(file, "{}\n", entry)?;
     println!("Added entry: {}", style(entry).green());
     return Ok(());
-}
-
-pub fn read_items() -> Vec<String> {
-    let file = File::open(get_item_file()).unwrap();
-    let reader = BufReader::new(file);
-
-    let mut lines = Vec::new();
-
-    for (_, line) in reader.lines().enumerate() { 
-        let line = line.unwrap();
-        lines.push(line.to_string());
-    }
-
-    lines.sort_by(|line_a: &String, line_b: &String| {
-        let timestamp_a = get_timestamp(line_a);
-        let timestamp_b = get_timestamp(line_b);
-
-        timestamp_b.partial_cmp(&timestamp_a).unwrap()
-    });
-
-    lines.into_iter().map(|line| { get_cmd(&line) }).collect()
-
 }
 
 pub fn replace_timestamp(cmd: &str) -> Vec<String> {
@@ -156,8 +134,8 @@ fn get_timestamp(line: &str) -> u64 {
     s.to_string().parse().unwrap()
 }
 
-pub fn init() {
-    ItemStorage::new(&get_home_dir());
+pub fn init() -> ItemStorage {
+    ItemStorage::new(&get_home_dir())
 }
 
 fn get_item_file() -> String {
