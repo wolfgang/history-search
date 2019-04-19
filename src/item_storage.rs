@@ -10,6 +10,10 @@ use console::{style};
 
 use std::env;
 
+pub fn call_me() -> u32 {
+    1234
+}
+
 pub fn add_item(args: &mut Vec<String>) -> std::io::Result<()> {
     let mut prefix = String::from("");
     if args[0] == "-d" {
