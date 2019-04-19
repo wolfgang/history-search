@@ -16,6 +16,11 @@ pub struct ItemStorage {
 
 impl ItemStorage {
     pub fn new(home_dir: &str) -> ItemStorage {
+        if !Path::new(home_dir).exists() {
+            DirBuilder::new()
+                .recursive(false)
+                .create(home_dir).expect("Failed to create home dir");
+        }
         ItemStorage {}
     }
 }
