@@ -51,7 +51,7 @@ impl ItemStorage {
             timestamp_b.partial_cmp(&timestamp_a).unwrap()
         });
 
-        lines.into_iter().map(|line| { get_cmd(&line) }).collect()
+        lines.into_iter().map(|line| { parse_command(&line) }).collect()
     }
 
     pub fn add_item(&self, args: &mut Vec<String>) -> std::io::Result<()> {
@@ -62,8 +62,7 @@ impl ItemStorage {
                 panic!("Error: Must add command if specifying -d");
             }
 
-            let cwd = env::current_dir().unwrap().as_path().to_str().unwrap().to_string();
-            prefix = format!("[{}]", cwd);    
+            prefix = format!("[{}]", get_cwd());    
         }
 
         let entry_without_timestamp = format!("{}{}", prefix, args.join(" "));
@@ -84,7 +83,7 @@ impl ItemStorage {
         let lines = self.read_lines_from_item_file();
 
         let new_lines: Vec<String> = lines.into_iter().map(|line| {
-            let line_cmd = get_cmd(&line);
+            let line_cmd = parse_command(&line);
             if line_cmd == cmd { format!("{} {}", get_now_timestamp(), cmd) }
             else { line.to_string() }
         }).collect();
@@ -110,7 +109,11 @@ fn get_now_timestamp() -> u64 {
     SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()
 }
 
-fn get_cmd(line: &str) -> String {
+fn get_cwd() -> String {
+    env::current_dir().unwrap().as_path().to_str().unwrap().to_string()
+}
+
+fn parse_command(line: &str) -> String {
     let after_ts = line.find(' ').unwrap_or(0);
     let s = &line[after_ts + 1..];
     s.to_string()
