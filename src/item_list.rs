@@ -98,10 +98,9 @@ impl<'a> ItemList<'a> {
     }
 
     pub fn clear(&mut self) -> crossterm::Result<()> {
-        execute!(stdout(),SavePosition)?;
+        execute!(stdout(),SavePosition, MoveToColumn(0))?;
         let (cols, _) = size().unwrap();
-
-        let blank_line = " ".repeat((cols - 10) as usize);
+        let blank_line = " ".repeat(cols as usize - 1);
         for _ in 0..self.height() {
             println!("{}\r", blank_line);
         }

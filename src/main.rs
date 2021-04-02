@@ -5,6 +5,7 @@ use hs::item_list_controller::ItemListController;
 use hs::item_storage::ItemStorage;
 use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
 
+
 fn main() -> crossterm::Result<()> {
     let mut args: Vec<String> = env::args().collect();
     args.remove(0);

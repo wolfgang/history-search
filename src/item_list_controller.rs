@@ -5,6 +5,7 @@ use crossterm::event::{Event, KeyCode, read};
 use crossterm::style::Colorize;
 
 use crate::item_list::ItemList;
+use crossterm::terminal::disable_raw_mode;
 
 pub struct ItemListController<'a> {
     item_list: &'a mut ItemList<'a>,
@@ -22,7 +23,7 @@ impl<'a> ItemListController<'a> {
             if let Event::Key(key_event) = read().unwrap() {
                 match key_event.code {
                     KeyCode::Enter => { return self.execute_selection(); }
-                    KeyCode::Esc => { return self.item_list.clear(); }
+                    KeyCode::Esc => { return self.item_list.remove(); }
                     KeyCode::Down => { self.item_list.change_selection(1)? }
                     KeyCode::Up => { self.item_list.change_selection(-1)? }
                     KeyCode::Backspace => { self.item_list.on_backspace()? }
@@ -37,13 +38,14 @@ impl<'a> ItemListController<'a> {
         self.item_list.remove()?;
         let command = self.item_list.selected_item().to_string();
         self.print_command_info(&command);
+        disable_raw_mode()?;
         execute_command(&command);
         self.item_list.reset_cursor()?;
         Ok(())
     }
 
     fn print_command_info(&self, command: &str) {
-        println!("-> {}\r", &command.green());
+        println!("Executing {}\r", &command.green());
     }
 }
 
