@@ -34,15 +34,14 @@ impl<'a> ItemList<'a> {
 
     pub fn on_character_entered(&mut self, ch: char) -> std::io::Result<()> {
         let delete = char::from(127);
-        self.clear()?;
-
         if ch == delete && !self.search_term.is_empty() {
             self.search_term.pop();
-            self.filter_items();
         } else if ch != delete {
             self.search_term.push(ch);
-            self.filter_items();
         }
+
+        self.clear()?;
+        self.filter_items();
         self.selection = 0;
         self.selection_window_start = 0;
         self.selection_window_y = 0;
