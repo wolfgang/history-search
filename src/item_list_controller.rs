@@ -40,7 +40,7 @@ impl<'a> ItemListController<'a> {
         self.print_command_info(&command);
         disable_raw_mode()?;
         execute_command(&command);
-        self.item_list.reset_cursor()?;
+        self.item_list.reset_cursor_column()?;
         Ok(())
     }
 

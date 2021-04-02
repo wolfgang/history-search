@@ -33,18 +33,17 @@ impl<'a> ItemList<'a> {
 
     pub fn init(&mut self) -> crossterm::Result<()> {
         let (_, rows) = size()?;
-        self.selection_window_height = min(rows as i16 -2, 10);
+        self.selection_window_height = min(rows as i16 - 2, 10);
         self.filter_items();
-        self.render()?;
-        self.init_cursor()
+        self.render()
     }
 
     pub fn remove(&mut self) -> crossterm::Result<()> {
         self.clear()?;
-        self.reset_cursor()
+        self.reset_cursor_column()
     }
 
-    pub fn reset_cursor(&mut self) -> crossterm::Result<()> {
+    pub fn reset_cursor_column(&mut self) -> crossterm::Result<()> {
         execute!(stdout(), MoveToColumn(0))
     }
 
@@ -54,6 +53,13 @@ impl<'a> ItemList<'a> {
             return self.process_input();
         }
         Ok(())
+    }
+
+    pub fn selected_item(&self) -> &String {
+        match self.filtered_items.get(self.selection as usize) {
+            Some(item) => { item }
+            None => { &self.search_term }
+        }
     }
 
     pub fn on_character_entered(&mut self, ch: char) -> crossterm::Result<()> {
@@ -96,11 +102,8 @@ impl<'a> ItemList<'a> {
     }
 
     fn refresh(&mut self) -> crossterm::Result<()> {
-        execute!(stdout(), MoveToColumn(0), SavePosition)?;
         self.clear()?;
-        self.render()?;
-        execute!(stdout(), RestorePosition, MoveRight(self.search_term.len() as u16 + 2))?;
-        Ok(())
+        self.render()
     }
 
     fn clear(&mut self) -> crossterm::Result<()> {
@@ -116,6 +119,7 @@ impl<'a> ItemList<'a> {
     }
 
     fn render(&self) -> crossterm::Result<()> {
+        execute!(stdout(), MoveToColumn(0))?;
         println!("> {}\r", self.search_term);
         for index in self.selection_window_start..self.get_selection_window_end() {
             let item = self.filtered_items[index as usize];
@@ -125,19 +129,8 @@ impl<'a> ItemList<'a> {
                 println!("{}\r", item);
             }
         }
-        Ok(())
-    }
 
-    fn init_cursor(&mut self) -> crossterm::Result<()> {
-        execute!(stdout(), MoveUp(self.height()), MoveRight(2))?;
-        Ok(())
-    }
-
-    pub fn selected_item(&self) -> &String {
-        match self.filtered_items.get(self.selection as usize) {
-            Some(item) => { item }
-            None => { &self.search_term }
-        }
+        execute!(stdout(), MoveUp(self.height()), MoveToColumn(self.search_term.len() as u16 + 3))
     }
 
     fn filter_items(&mut self) {
