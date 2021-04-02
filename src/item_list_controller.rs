@@ -19,20 +19,16 @@ impl<'a> ItemListController<'a> {
         self.item_list.init()?;
 
         loop {
-            let event = read().unwrap();
-            match event {
-                Event::Key(key_event) => {
-                    match key_event.code {
-                        KeyCode::Enter => { return self.execute_selection(); }
-                        KeyCode::Esc => { return self.item_list.clear(); }
-                        KeyCode::Down => { self.item_list.change_selection(1)? }
-                        KeyCode::Up => { self.item_list.change_selection(-1)? }
-                        KeyCode::Backspace => { self.item_list.on_backspace()? }
-                        KeyCode::Char(ch) => { self.item_list.on_character_entered(ch)? }
-                        _ => {}
-                    }
+            if let Event::Key(key_event) = read().unwrap() {
+                match key_event.code {
+                    KeyCode::Enter => { return self.execute_selection(); }
+                    KeyCode::Esc => { return self.item_list.clear(); }
+                    KeyCode::Down => { self.item_list.change_selection(1)? }
+                    KeyCode::Up => { self.item_list.change_selection(-1)? }
+                    KeyCode::Backspace => { self.item_list.on_backspace()? }
+                    KeyCode::Char(ch) => { self.item_list.on_character_entered(ch)? }
+                    _ => {}
                 }
-                _ => {}
             }
         }
     }
