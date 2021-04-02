@@ -26,6 +26,7 @@ impl<'a> ItemListController<'a> {
     }
 
     pub fn run(&mut self) -> std::io::Result<()> {
+        self.item_list.init();
         self.item_list.render()?;
         self.item_list.init_cursor()?;
 
