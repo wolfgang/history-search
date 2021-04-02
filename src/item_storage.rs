@@ -13,9 +13,7 @@ impl ItemStorage {
         let home_dir = Path::new(home_value.as_str());
         let bash_history = String::from(home_dir.join(".bash_history").to_str().unwrap());
         let histfile_value = env::var("HISTFILE").unwrap_or(bash_history);
-        ItemStorage {
-            item_file: histfile_value
-        }
+        ItemStorage { item_file: histfile_value }
     }
 
     pub fn read_items(&self) -> Vec<String> {
