@@ -5,6 +5,4 @@ authors = ["wolfgang <wolfgang@wolfgangdeutsch.work>"]
 edition = "2018"
 
 [dependencies]
-console = "0.7.5"
-crossterm_cursor = "0.2"
-regex = "1"
+crossterm = "0.19.0"

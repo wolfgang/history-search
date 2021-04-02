@@ -1,11 +1,11 @@
 
 use std::env;
-use console::{Term};
 use hs::item_list::ItemList;
 use hs::item_list_controller::ItemListController;
 use hs::item_storage::ItemStorage;
+use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
 
-fn main() -> std::io::Result<()> {
+fn main() -> crossterm::Result<()> {
     let mut args: Vec<String> = env::args().collect();
     args.remove(0);
 
@@ -13,18 +13,17 @@ fn main() -> std::io::Result<()> {
 
     let item_storage = ItemStorage::new();
     let items = item_storage.read_items();
-    let term = Term::stdout();
-    let mut item_list = ItemList::new(&term, &items);
-    return ItemListController::new(&term, &mut item_list).run();
+    let mut item_list = ItemList::new(&items);
+    enable_raw_mode()?;
+    ItemListController::new(&mut item_list).run()?;
+    return disable_raw_mode();
 }
 
-fn display_help() -> std::io::Result<()> {
+fn display_help() -> crossterm::Result<()> {
     println!("\nUsage: hs");
     println!("\nDisplays a searchable list of the shell history:");
     println!("  Enter to execute the selected command,");
     println!("  Arrow up/down to change selection");
     println!("  Escape to cancel");
-
     return Ok(())
-
 }

@@ -1,45 +1,63 @@
 use std::cmp::{max, min};
+use std::io::stdout;
 
-use console::{style, Term};
-use crossterm_cursor::{cursor, TerminalCursor};
+use crossterm::{
+    cursor::{MoveRight, MoveToColumn, MoveUp, RestorePosition, SavePosition},
+    execute
+};
+use crossterm::style::Styler;
+use crossterm::terminal::size;
 
 pub struct ItemList<'a> {
-    term: &'a Term,
     items: &'a Vec<String>,
     search_term: String,
     selection: i16,
     selection_window_start: i16,
     selection_window_y: i16,
-    cursor: TerminalCursor,
     filtered_items: Vec<&'a String>,
 }
 
 impl<'a> ItemList<'a> {
-    pub fn new(term: &'a Term, items: &'a Vec<String>) -> ItemList<'a> {
+    pub fn new(items: &'a Vec<String>) -> ItemList<'a> {
         ItemList {
-            term: term,
-            items: items,
+            items,
             search_term: String::new(),
             filtered_items: Vec::with_capacity(10),
             selection: 0,
             selection_window_start: 0,
             selection_window_y: 0,
-            cursor: cursor(),
         }
     }
 
-    pub fn init(&mut self) {
+    pub fn init(&mut self) -> crossterm::Result<()> {
         self.filter_items();
+        self.render()?;
+        self.init_cursor()
     }
 
-    pub fn on_character_entered(&mut self, ch: char) -> std::io::Result<()> {
-        let delete = char::from(127);
-        if ch == delete && !self.search_term.is_empty() {
-            self.search_term.pop();
-        } else if ch != delete {
-            self.search_term.push(ch);
-        }
+    pub fn remove(&mut self) -> crossterm::Result<()> {
+        self.clear()?;
+        self.reset_cursor()
+    }
 
+    pub fn reset_cursor(&mut self) -> crossterm::Result<()> {
+        execute!(stdout(), MoveToColumn(0))
+    }
+
+    pub fn on_backspace(&mut self) -> crossterm::Result<()> {
+        if !self.search_term.is_empty() {
+            self.search_term.pop();
+            return self.process_input();
+        }
+        Ok(())
+    }
+
+    pub fn on_character_entered(&mut self, ch: char) -> crossterm::Result<()> {
+        self.search_term.push(ch);
+        self.process_input()
+    }
+
+    fn process_input(&mut self) -> crossterm::Result<()> {
         self.clear()?;
         self.filter_items();
         self.selection = 0;
@@ -49,7 +67,7 @@ impl<'a> ItemList<'a> {
         Ok(())
     }
 
-    pub fn change_selection(&mut self, direction: i16) -> std::io::Result<()> {
+    pub fn change_selection(&mut self, direction: i16) -> crossterm::Result<()> {
         let num_items = self.filtered_items.len() as i16;
         let prev_selection = self.selection;
         self.selection = max(0, min(num_items - 1, self.selection + direction));
@@ -71,39 +89,42 @@ impl<'a> ItemList<'a> {
         Ok(())
     }
 
-    pub fn refresh(&mut self) -> std::io::Result<()> {
-        self.cursor.save_position()?;
+    pub fn refresh(&mut self) -> crossterm::Result<()> {
+        execute!(stdout(), MoveToColumn(0), SavePosition)?;
         self.clear()?;
         self.render()?;
-        self.cursor.reset_position()?;
-        let (_, y) = self.cursor.pos();
-        self.cursor.goto(self.search_term.len() as u16 + 2, y)?;
+        execute!(stdout(), RestorePosition, MoveRight(self.search_term.len() as u16 + 2))?;
+        Ok(())
+    }
+
+    pub fn clear(&mut self) -> crossterm::Result<()> {
+        execute!(stdout(),SavePosition)?;
+        let (cols, _) = size().unwrap();
+
+        let blank_line = " ".repeat((cols - 10) as usize);
+        for _ in 0..self.height() {
+            println!("{}\r", blank_line);
+        }
+        execute!(stdout(),RestorePosition)?;
 
         Ok(())
     }
 
-    pub fn clear(&mut self) -> std::io::Result<()> {
-        self.cursor.move_down(self.height());
-        self.term.clear_last_lines(self.height() as usize)?;
-        Ok(())
-    }
-
-    pub fn render(&self) -> std::io::Result<()> {
-        self.term.write_line(&format!("> {}", self.search_term))?;
+    pub fn render(&self) -> crossterm::Result<()> {
+        println!("> {}\r", self.search_term);
         for index in self.selection_window_start..self.get_selection_window_end() {
             let item = self.filtered_items[index as usize];
             if index == self.selection as i16 {
-                self.term.write_line(&format!("{}", style(item).reverse()))?;
+                println!("{}\r", item.clone().reverse());
             } else {
-                self.term.write_line(&format!("{}", item))?;
+                println!("{}\r", item);
             }
         }
         Ok(())
     }
 
-    pub fn init_cursor(&mut self) -> std::io::Result<()> {
-        self.cursor.move_up(self.height());
-        self.cursor.move_right(2);
+    pub fn init_cursor(&mut self) -> crossterm::Result<()> {
+        execute!(stdout(), MoveUp(self.height()), MoveRight(2))?;
         Ok(())
     }
 
@@ -122,13 +143,13 @@ impl<'a> ItemList<'a> {
     }
 
     fn height(&self) -> u16 {
-        let (_, width) = self.term.size();
+        let (cols, _) = size().unwrap();
         let mut result = 0;
 
         for index in self.selection_window_start..self.get_selection_window_end() {
             let item = self.filtered_items[index as usize];
             let l = item.len();
-            result = result + (l as f64 / width as f64).ceil() as u16;
+            result = result + (l as f64 / cols as f64).ceil() as u16;
         }
 
         result + 1
