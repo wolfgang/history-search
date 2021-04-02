@@ -3,7 +3,7 @@ use std::io::stdout;
 
 use crossterm::{
     cursor::{MoveRight, MoveToColumn, MoveUp, RestorePosition, SavePosition},
-    execute
+    execute,
 };
 use crossterm::style::Styler;
 use crossterm::terminal::size;
@@ -15,6 +15,7 @@ pub struct ItemList<'a> {
     selection_window_start: i16,
     selection_window_y: i16,
     filtered_items: Vec<&'a String>,
+    selection_window_height: i16,
 }
 
 impl<'a> ItemList<'a> {
@@ -26,10 +27,13 @@ impl<'a> ItemList<'a> {
             selection: 0,
             selection_window_start: 0,
             selection_window_y: 0,
+            selection_window_height: 10,
         }
     }
 
     pub fn init(&mut self) -> crossterm::Result<()> {
+        let (_, rows) = size()?;
+        self.selection_window_height = min(rows as i16 -2, 10);
         self.filter_items();
         self.render()?;
         self.init_cursor()
@@ -57,17 +61,7 @@ impl<'a> ItemList<'a> {
         self.process_input()
     }
 
-    fn process_input(&mut self) -> crossterm::Result<()> {
-        self.clear()?;
-        self.filter_items();
-        self.selection = 0;
-        self.selection_window_start = 0;
-        self.selection_window_y = 0;
-        self.refresh()?;
-        Ok(())
-    }
-
-    pub fn change_selection(&mut self, direction: i16) -> crossterm::Result<()> {
+    pub fn on_selection_change(&mut self, direction: i16) -> crossterm::Result<()> {
         let num_items = self.filtered_items.len() as i16;
         let prev_selection = self.selection;
         self.selection = max(0, min(num_items - 1, self.selection + direction));
@@ -78,9 +72,11 @@ impl<'a> ItemList<'a> {
                 self.selection_window_start = max(0, self.selection_window_start + direction);
             }
 
-            if self.selection_window_y > 9 {
-                self.selection_window_y = 9;
-                self.selection_window_start = min(self.selection_window_start + direction, num_items - 10);
+            if self.selection_window_y == self.selection_window_height {
+                self.selection_window_y = self.selection_window_height - 1;
+                self.selection_window_start = min(
+                    self.selection_window_start + direction,
+                    num_items - self.selection_window_height);
             }
 
             self.refresh()?;
@@ -89,7 +85,17 @@ impl<'a> ItemList<'a> {
         Ok(())
     }
 
-    pub fn refresh(&mut self) -> crossterm::Result<()> {
+    fn process_input(&mut self) -> crossterm::Result<()> {
+        self.clear()?;
+        self.filter_items();
+        self.selection = 0;
+        self.selection_window_start = 0;
+        self.selection_window_y = 0;
+        self.refresh()?;
+        Ok(())
+    }
+
+    fn refresh(&mut self) -> crossterm::Result<()> {
         execute!(stdout(), MoveToColumn(0), SavePosition)?;
         self.clear()?;
         self.render()?;
@@ -97,7 +103,7 @@ impl<'a> ItemList<'a> {
         Ok(())
     }
 
-    pub fn clear(&mut self) -> crossterm::Result<()> {
+    fn clear(&mut self) -> crossterm::Result<()> {
         execute!(stdout(),SavePosition, MoveToColumn(0))?;
         let (cols, _) = size().unwrap();
         let blank_line = " ".repeat(cols as usize - 1);
@@ -109,7 +115,7 @@ impl<'a> ItemList<'a> {
         Ok(())
     }
 
-    pub fn render(&self) -> crossterm::Result<()> {
+    fn render(&self) -> crossterm::Result<()> {
         println!("> {}\r", self.search_term);
         for index in self.selection_window_start..self.get_selection_window_end() {
             let item = self.filtered_items[index as usize];
@@ -122,7 +128,7 @@ impl<'a> ItemList<'a> {
         Ok(())
     }
 
-    pub fn init_cursor(&mut self) -> crossterm::Result<()> {
+    fn init_cursor(&mut self) -> crossterm::Result<()> {
         execute!(stdout(), MoveUp(self.height()), MoveRight(2))?;
         Ok(())
     }
@@ -143,7 +149,8 @@ impl<'a> ItemList<'a> {
 
     fn height(&self) -> u16 {
         let (cols, _) = size().unwrap();
-        let mut result = 0;
+        // Count the input line
+        let mut result = 1;
 
         for index in self.selection_window_start..self.get_selection_window_end() {
             let item = self.filtered_items[index as usize];
@@ -151,10 +158,12 @@ impl<'a> ItemList<'a> {
             result = result + (l as f64 / cols as f64).ceil() as u16;
         }
 
-        result + 1
+        result
     }
 
     fn get_selection_window_end(&self) -> i16 {
-        min(self.filtered_items.len() as i16, self.selection_window_start + 10)
+        min(
+            self.filtered_items.len() as i16,
+            self.selection_window_start + self.selection_window_height)
     }
 }

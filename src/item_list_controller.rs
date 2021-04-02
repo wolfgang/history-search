@@ -24,8 +24,8 @@ impl<'a> ItemListController<'a> {
                 match key_event.code {
                     KeyCode::Enter => { return self.execute_selection(); }
                     KeyCode::Esc => { return self.item_list.remove(); }
-                    KeyCode::Down => { self.item_list.change_selection(1)? }
-                    KeyCode::Up => { self.item_list.change_selection(-1)? }
+                    KeyCode::Down => { self.item_list.on_selection_change(1)? }
+                    KeyCode::Up => { self.item_list.on_selection_change(-1)? }
                     KeyCode::Backspace => { self.item_list.on_backspace()? }
                     KeyCode::Char(ch) => { self.item_list.on_character_entered(ch)? }
                     _ => {}
