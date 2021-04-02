@@ -2,7 +2,7 @@ use std::cmp::{max, min};
 use std::io::stdout;
 
 use crossterm::{
-    cursor::{MoveRight, MoveToColumn, MoveUp, RestorePosition, SavePosition},
+    cursor::{MoveToColumn, MoveUp, RestorePosition, SavePosition},
     execute,
 };
 use crossterm::style::Styler;
