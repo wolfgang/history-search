@@ -4,4 +4,4 @@ set -e
 
 cargo build --release
 
-cp target/release/rp ~/bin
+cp target/release/hs ~/bin

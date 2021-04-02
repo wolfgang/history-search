@@ -1,28 +1,18 @@
-use crate::item_list::ItemList;
-use crate::item_storage::ItemStorage;
-
-use std::process::Command;
 use std::env;
+use std::process::Command;
 
-use console::{Key, Term, Style};
+use console::{Key, Style, Term};
+
+use crate::item_list::ItemList;
 
 pub struct ItemListController<'a> {
     term: &'a Term,
     item_list: &'a mut ItemList<'a>,
-    item_storage: &'a ItemStorage
 }
 
 impl<'a> ItemListController<'a> {
-    pub fn new(
-        term: &'a Term, 
-        item_list: &'a mut ItemList<'a>,
-        item_storage: &'a ItemStorage) -> ItemListController<'a> {
-
-        ItemListController { 
-            term: term, 
-            item_list: item_list,
-            item_storage: item_storage
-        }
+    pub fn new(term: &'a Term, item_list: &'a mut ItemList<'a>) -> ItemListController<'a> {
+        ItemListController { term, item_list }
     }
 
     pub fn run(&mut self) -> std::io::Result<()> {
@@ -34,8 +24,8 @@ impl<'a> ItemListController<'a> {
             let key = self.term.read_key().unwrap();
 
             match key {
-                Key::Enter => { return self.execute_selection() }
-                Key::Escape => { return self.item_list.clear() }
+                Key::Enter => { return self.execute_selection(); }
+                Key::Escape => { return self.item_list.clear(); }
                 Key::ArrowUp => { self.item_list.change_selection(-1)? }
                 Key::ArrowDown => { self.item_list.change_selection(1)? }
                 Key::Char(ch) => { self.item_list.on_character_entered(ch)? }
@@ -50,13 +40,12 @@ impl<'a> ItemListController<'a> {
 
         self.print_command_info(&working_dir, &command)?;
         execute_command(&working_dir, &command);
-        self.item_storage.replace_timestamp(self.item_list.selected_item());
         Ok(())
     }
 
     fn parse_selection(&self) -> (String, String) {
         let item = self.item_list.selected_item();
-        let parts : Vec<&str> = item.split("]").collect();
+        let parts: Vec<&str> = item.split("]").collect();
         if parts.len() == 2 {
             return (parts[0][1..].to_string(), parts[1].to_string());
         }
@@ -64,28 +53,27 @@ impl<'a> ItemListController<'a> {
     }
 
     fn print_command_info(&self, working_dir: &str, command: &str) -> std::io::Result<()> {
-        let green = Style::new().green(); 
-        let blue = Style::new().blue(); 
+        let green = Style::new().green();
+        let blue = Style::new().blue();
 
-        let prefix = if working_dir != "." { 
-            format!(" [{}] ", &working_dir) 
-        } else { 
-            String::from(" ") 
+        let prefix = if working_dir != "." {
+            format!(" [{}] ", &working_dir)
+        } else {
+            String::from(" ")
         };
 
         let info = format!("->{}{}", blue.apply_to(prefix), green.apply_to(&command));
         self.term.write_line(&info)
     }
-
 }
 
 fn execute_command(working_dir: &str, command: &str) {
     let shell = env::var_os("SHELL").unwrap();
     Command::new(shell)
-            .arg("-c")
-            .arg(&command)
-            .current_dir(&working_dir)
-            .status()
-            .expect(&format!("Failed to execute: {}", command ));
+        .arg("-c")
+        .arg(&command)
+        .current_dir(&working_dir)
+        .status()
+        .expect(&format!("Failed to execute: {}", command));
 }
 
