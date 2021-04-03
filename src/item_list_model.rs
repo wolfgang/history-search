@@ -4,7 +4,6 @@ type FilteredItems<'a> = Vec<&'a String>;
 type FilteredItem<'a> = (&'a String, bool);
 
 pub struct ItemListModel<'a> {
-    display_size: (u16, u16),
     items: &'a Vec<String>,
     filtered_items: FilteredItems<'a>,
     search_term: String,
@@ -48,7 +47,6 @@ impl<'a> ItemListModel<'a> {
         let (_, rows) = display_size;
         let selection_window_height = min(rows as i16 - 2, 10);
         Self {
-            display_size,
             items,
             search_term: String::with_capacity(64),
             filtered_items: Vec::with_capacity(10),
@@ -124,9 +122,8 @@ impl<'a> ItemListModel<'a> {
         }
     }
 
-    pub fn get_max_height(&self) -> u16 {
+    pub fn get_max_height(&self, cols: u16) -> u16 {
         let num_items = self.selection_window_height;
-        let (cols, _) = self.display_size;
         // Count the input line
         let mut result = 1;
 

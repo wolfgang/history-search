@@ -44,10 +44,11 @@ impl ItemList {
         execute!(stdout(), MoveToColumn(0))?;
         let (cols, _) = size()?;
         let blank_line = " ".repeat(cols as usize - 1);
-        for _ in 0..model.get_max_height() {
+        let display_height = model.get_max_height(cols);
+        for _ in 0..display_height {
             println!("{}\r", blank_line);
         }
-        execute!(stdout(), MoveUp(model.get_max_height()))
+        execute!(stdout(), MoveUp(display_height))
     }
 
     fn printable_item(item: &String, is_selected: bool) -> StyledContent<String> {
