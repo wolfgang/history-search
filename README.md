@@ -24,4 +24,4 @@ Alternatively you can use ```install.sh``` which takes an optional argument to b
 
 For ultimate fun, you can bind a hotkey to the command, for example with ```bind -x '"\C-h": hs'```.
 
-The tool was tested on macOS. It will probably work in Linux, and most likely not in Windows.
+The tool was tested on macOS. It will probably work in Linux. Windows is not supported.
