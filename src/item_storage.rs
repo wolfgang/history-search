@@ -20,8 +20,12 @@ impl ItemStorage {
         let file = File::open(&self.item_file).unwrap();
         let reader = BufReader::new(file);
 
-        reader.lines()
+        let mut lines: Vec<String> = reader
+            .lines()
             .map(|line| { line.unwrap().to_string() })
-            .collect()
+            .collect();
+
+        lines.reverse();
+        lines
     }
 }
