@@ -110,19 +110,11 @@ impl<'a> ItemListModel<'a> {
             self.selection)
     }
 
-    pub fn is_selected(&self, index: i16) -> bool {
-        index == self.selection as i16
-    }
-
     pub fn filter_items(&mut self) {
         let search_term_upper = self.search_term.to_ascii_uppercase();
         self.filtered_items = self.items.iter()
             .filter(|it| it.to_ascii_uppercase().find(&search_term_upper) != None)
             .collect()
-    }
-
-    pub fn get_filtered_items(&'a self) -> &'a Vec<&'a String> {
-        return &self.filtered_items;
     }
 
     pub fn get_selected_item(&self) -> &String {
