@@ -124,21 +124,8 @@ impl<'a> ItemListModel<'a> {
         }
     }
 
-    pub fn get_filtered_height(&self) -> u16 {
-        self.get_height(self.get_selection_window_height())
-    }
-
     pub fn get_max_height(&self) -> u16 {
-        self.get_height(self.selection_window_height)
-    }
-
-    pub fn get_selection_window_end(&self) -> i16 {
-        return min(
-            self.filtered_items.len() as i16,
-            self.selection_window_start + self.selection_window_height);
-    }
-
-    fn get_height(&self, num_items: i16) -> u16 {
+        let num_items = self.selection_window_height;
         let (cols, _) = self.display_size;
         // Count the input line
         let mut result = 1;
@@ -153,14 +140,16 @@ impl<'a> ItemListModel<'a> {
         result
     }
 
-    fn get_selection_window_height(&self) -> i16 {
-        self.get_selection_window_end() - self.selection_window_start
-    }
-
     fn on_search_term_changed(&mut self) {
         self.selection = 0;
         self.selection_window_start = 0;
         self.selection_window_y = 0;
         self.filter_items();
+    }
+
+    fn get_selection_window_end(&self) -> i16 {
+        return min(
+            self.filtered_items.len() as i16,
+            self.selection_window_start + self.selection_window_height);
     }
 }

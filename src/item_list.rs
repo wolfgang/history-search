@@ -4,13 +4,12 @@ use crossterm::{
     cursor::{MoveToColumn, MoveUp, RestorePosition, SavePosition},
     execute,
 };
-use crossterm::style::Styler;
+use crossterm::style::{Styler, StyledContent};
 use crossterm::terminal::size;
 
 use crate::item_list_model::ItemListModel;
 
-pub struct ItemList {
-}
+pub struct ItemList {}
 
 impl ItemList {
     pub fn remove(&mut self, model: &ItemListModel) -> crossterm::Result<()> {
@@ -28,32 +27,30 @@ impl ItemList {
     }
 
     pub fn render(&self, model: &ItemListModel) -> crossterm::Result<()> {
-        execute!(stdout(), MoveToColumn(0))?;
+        execute!(stdout(), MoveToColumn(0), SavePosition)?;
         println!("> {}\r", model.get_search_term());
 
         for (item, is_selected) in model.filtered_items_iter() {
-            if is_selected {
-                println!("{}\r", item.clone().reverse());
-            } else {
-                println!("{}\r", item);
-            }
+            println!("{}\r", Self::printable_item(item, is_selected));
         }
 
         execute!(
             stdout(),
-            MoveUp(model.get_filtered_height()),
+            RestorePosition,
             MoveToColumn(model.get_search_term().len() as u16 + 3))
     }
 
     fn clear(&mut self, model: &ItemListModel) -> crossterm::Result<()> {
-        execute!(stdout(),SavePosition, MoveToColumn(0))?;
-        let (cols, _) = size().unwrap();
+        execute!(stdout(), MoveToColumn(0))?;
+        let (cols, _) = size()?;
         let blank_line = " ".repeat(cols as usize - 1);
         for _ in 0..model.get_max_height() {
             println!("{}\r", blank_line);
         }
-        execute!(stdout(),RestorePosition)?;
+        execute!(stdout(), MoveUp(model.get_max_height()))
+    }
 
-        Ok(())
+    fn printable_item(item: &String, is_selected: bool) -> StyledContent<String> {
+        if is_selected { item.clone().reverse() } else { item.clone().reset() }
     }
 }
