@@ -20,7 +20,6 @@ impl<'a> ItemListController<'a> {
 
     pub fn run(&mut self) -> crossterm::Result<()> {
         self.item_list_model.filter_items();
-        self.item_list.render(self.item_list_model, true)?;
         self.refresh_item_list()?;
 
         loop {

@@ -122,6 +122,10 @@ impl<'a> ItemListModel<'a> {
         }
     }
 
+    pub fn get_selection_window_height(&self) -> i16 {
+        self.selection_window_height
+    }
+
     fn on_search_term_changed(&mut self) {
         self.selection = 0;
         self.selection_window_start = 0;
