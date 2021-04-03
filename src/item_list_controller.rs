@@ -91,3 +91,22 @@ fn execute_command(command: &str) {
         .expect(&format!("Failed to execute: {}", command));
 }
 
+
+// fn execute_command(command: &str) {
+//     let shell = env::var_os("SHELL").unwrap();
+//     let get_output = Command::new(shell)
+//         .arg("-c")
+//         .arg(&format!("echo {}", &command))
+//         .output()
+//         .expect("Failed to execute");
+//
+//     let command2 = from_utf8(&get_output.stdout).unwrap();
+//
+//     let parts: Vec<&str> = command2.trim().split_ascii_whitespace().collect();
+//     let cmd = &parts[0];
+//     Command::new(&cmd)
+//         .args(&parts[1..])
+//         .status()
+//         .expect(&format!("Failed to execute: {}", command));
+// }
+
