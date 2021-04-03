@@ -17,16 +17,16 @@ pub struct FilteredItemsIterator<'a> {
     items: &'a FilteredItems<'a>,
     end_index: i16,
     selected_index: i16,
-    current_index: i16
+    current_index: i16,
 }
 
 impl<'a> FilteredItemsIterator<'a> {
-    pub fn new(items: &'a FilteredItems, start_index: i16, end_index: i16, selected_index: i16)  -> FilteredItemsIterator<'a> {
+    pub fn new(items: &'a FilteredItems, start_index: i16, end_index: i16, selected_index: i16) -> FilteredItemsIterator<'a> {
         FilteredItemsIterator {
             items,
             end_index,
             selected_index,
-            current_index: start_index
+            current_index: start_index,
         }
     }
 }
@@ -35,7 +35,7 @@ impl<'a> Iterator for FilteredItemsIterator<'a> {
     type Item = FilteredItem<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current_index == self.end_index { return None }
+        if self.current_index == self.end_index { return None; }
         let result = Some((self.items[self.current_index as usize], self.current_index == self.selected_index));
         self.current_index += 1;
         result
@@ -80,24 +80,16 @@ impl<'a> ItemListModel<'a> {
         let num_items = self.filtered_items.len() as i16;
         let prev_selection = self.selection;
         self.selection = max(0, min(num_items - 1, self.selection + direction));
-        if prev_selection != self.selection {
-            self.selection_window_y = self.selection_window_y + direction;
-            if self.selection_window_y < 0 {
-                self.selection_window_y = 0;
-                self.selection_window_start = max(0, self.selection_window_start + direction);
-            }
+        if prev_selection == self.selection { return false; }
 
-            if self.selection_window_y == self.selection_window_height {
-                self.selection_window_y = self.selection_window_height - 1;
-                self.selection_window_start = min(
-                    self.selection_window_start + direction,
-                    num_items - self.selection_window_height);
-            }
-
-            return true;
+        if direction == -1 && self.selection_window_y == 0 {
+            self.selection_window_start -= 1;
+        } else if direction == 1 && self.selection_window_y == self.selection_window_height - 1 {
+            self.selection_window_start += 1;
+        } else {
+            self.selection_window_y += direction;
         }
-
-        false
+        true
     }
 
     pub fn filtered_items_iter(&self) -> FilteredItemsIterator {
