@@ -22,4 +22,4 @@ cargo build --release
 This will build the executable into targets/release/hs - you can then copy that file to somewhere in your path.
 Alternatively you can use ```install.sh``` which takes an optional argument to be used as the destination path (default is $HOME/bin).
 
-For ultimate fun, you can bind a hotkey to the command, for example with ```bind -x '"\C-h": hs'``` - this should also prevent the command itself becoming part of the history.
+For ultimate fun, you can bind a hotkey to the command, for example with ```bind -x '"\C-h": hs'```.
