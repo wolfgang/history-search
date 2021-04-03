@@ -25,8 +25,8 @@ impl<'a> ItemListController<'a> {
         loop {
             if let Event::Key(key_event) = read().unwrap() {
                 match key_event.code {
-                    KeyCode::Enter => { return self.execute_selection(); }
-                    KeyCode::Esc => { return self.item_list.remove(self.item_list_model); }
+                    KeyCode::Enter => { return self.on_enter(); }
+                    KeyCode::Esc => { return self.on_cancel(); }
                     KeyCode::Down => { self.on_selection_change(1)? }
                     KeyCode::Up => { self.on_selection_change(-1)? }
                     KeyCode::Backspace => { self.on_backspace()? }
@@ -39,32 +39,42 @@ impl<'a> ItemListController<'a> {
 
     fn on_selection_change(&mut self, direction: i16) -> crossterm::Result<()> {
         if self.item_list_model.change_selection(direction) {
-            return self.item_list.refresh(self.item_list_model);
+            return self.refresh_item_list();
         }
         Ok(())
     }
 
-    fn on_backspace(&mut self)  -> crossterm::Result<()> {
+    fn on_backspace(&mut self) -> crossterm::Result<()> {
         if self.item_list_model.pop_search_term() {
-            return self.item_list.refresh(self.item_list_model);
+            return self.refresh_item_list();
         }
         Ok(())
     }
 
     fn on_character_entered(&mut self, ch: char) -> crossterm::Result<()> {
         self.item_list_model.add_to_search_term(ch);
-        self.item_list.refresh(self.item_list_model)
-
+        self.refresh_item_list()
     }
 
-    fn execute_selection(&mut self) -> crossterm::Result<()> {
-        self.item_list.remove(self.item_list_model)?;
+    fn on_cancel(&mut self) -> crossterm::Result<()> {
+        self.remove_item_list()
+    }
+
+    fn on_enter(&mut self) -> crossterm::Result<()> {
+        self.remove_item_list()?;
         let command = self.item_list_model.get_selected_item().to_string();
         self.print_command_info(&command);
         disable_raw_mode()?;
         execute_command(&command);
-        self.item_list.reset_cursor_column()?;
-        Ok(())
+        self.item_list.reset_cursor_column()
+    }
+
+    fn refresh_item_list(&mut self) -> crossterm::Result<()> {
+        self.item_list.refresh(self.item_list_model)
+    }
+
+    fn remove_item_list(&mut self) -> crossterm::Result<()> {
+        self.item_list.remove(self.item_list_model)
     }
 
     fn print_command_info(&self, command: &str) {

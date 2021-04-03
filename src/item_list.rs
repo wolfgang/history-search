@@ -27,18 +27,6 @@ impl ItemList {
         self.render(model)
     }
 
-    fn clear(&mut self, model: &ItemListModel) -> crossterm::Result<()> {
-        execute!(stdout(),SavePosition, MoveToColumn(0))?;
-        let (cols, _) = size().unwrap();
-        let blank_line = " ".repeat(cols as usize - 1);
-        for _ in 0..model.get_max_height() {
-            println!("{}\r", blank_line);
-        }
-        execute!(stdout(),RestorePosition)?;
-
-        Ok(())
-    }
-
     pub fn render(&self, model: &ItemListModel) -> crossterm::Result<()> {
         execute!(stdout(), MoveToColumn(0))?;
         println!("> {}\r", model.get_search_term());
@@ -55,5 +43,17 @@ impl ItemList {
             stdout(),
             MoveUp(model.get_filtered_height()),
             MoveToColumn(model.get_search_term().len() as u16 + 3))
+    }
+
+    fn clear(&mut self, model: &ItemListModel) -> crossterm::Result<()> {
+        execute!(stdout(),SavePosition, MoveToColumn(0))?;
+        let (cols, _) = size().unwrap();
+        let blank_line = " ".repeat(cols as usize - 1);
+        for _ in 0..model.get_max_height() {
+            println!("{}\r", blank_line);
+        }
+        execute!(stdout(),RestorePosition)?;
+
+        Ok(())
     }
 }
