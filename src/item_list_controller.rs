@@ -20,6 +20,7 @@ impl<'a> ItemListController<'a> {
 
     pub fn run(&mut self) -> crossterm::Result<()> {
         self.item_list_model.filter_items();
+        self.item_list.render(self.item_list_model, true)?;
         self.refresh_item_list()?;
 
         loop {
@@ -74,7 +75,7 @@ impl<'a> ItemListController<'a> {
     }
 
     fn remove_item_list(&mut self) -> crossterm::Result<()> {
-        self.item_list.remove(self.item_list_model)
+        self.item_list.remove()
     }
 
     fn print_command_info(&self, command: &str) {

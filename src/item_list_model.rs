@@ -122,21 +122,6 @@ impl<'a> ItemListModel<'a> {
         }
     }
 
-    pub fn get_max_height(&self, cols: u16) -> u16 {
-        let num_items = self.selection_window_height;
-        // Count the input line
-        let mut result = 1;
-
-        let start = self.selection_window_start as usize;
-        let end = (self.selection_window_start + num_items) as usize;
-        for index in start..end {
-            let l = if index < self.filtered_items.len() { self.filtered_items[index].len() } else { 1 };
-            result = result + (l as f64 / cols as f64).ceil() as u16;
-        }
-
-        result
-    }
-
     fn on_search_term_changed(&mut self) {
         self.selection = 0;
         self.selection_window_start = 0;

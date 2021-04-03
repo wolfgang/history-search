@@ -16,7 +16,7 @@ fn main() -> crossterm::Result<()> {
     let item_storage = ItemStorage::new();
     let items = item_storage.read_items();
     let size = size()?;
-    let mut item_list = ItemList {};
+    let mut item_list = ItemList::new();
     let mut item_list_model = ItemListModel::new(size, &items);
     enable_raw_mode()?;
     ItemListController::new(&mut item_list, &mut item_list_model).run()?;
