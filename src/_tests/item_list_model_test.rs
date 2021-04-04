@@ -68,6 +68,49 @@ mod filtering {
     }
 }
 
+mod selection {
+    use super::*;
+
+    #[test]
+    fn change_selection_moves_selection() {
+        let items = vec!["one".into(), "two".into()];
+        let mut model = ItemListModel::new((10, 20), &items);
+        model.change_selection(1);
+        assert_eq!(get_filtered_items(&model), vec![
+            (&"one".into(), false),
+            (&"two".into(), true),
+        ]);
+        model.change_selection(-1);
+        assert_eq!(get_filtered_items(&model), vec![
+            (&"one".into(), true),
+            (&"two".into(), false),
+        ])
+    }
+
+    #[test]
+    fn change_selection_is_constrained() {
+        let items = vec!["one".into(), "two".into()];
+        let mut model = ItemListModel::new((10, 20), &items);
+        model.change_selection(1);
+        model.change_selection(1);
+        model.change_selection(1);
+        model.change_selection(1);
+        assert_eq!(get_filtered_items(&model), vec![
+            (&"one".into(), false),
+            (&"two".into(), true),
+        ]);
+        model.change_selection(-1);
+        model.change_selection(-1);
+        model.change_selection(-1);
+        model.change_selection(-1);
+        model.change_selection(-1);
+        model.change_selection(-1);
+        assert_eq!(get_filtered_items(&model), vec![
+            (&"one".into(), true),
+            (&"two".into(), false),
+        ])
+    }
+}
 
 fn get_filtered_items<'a>(model: &'a ItemListModel) -> Vec<(&'a String, bool)> {
     model.filtered_items_iter().collect()
