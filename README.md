@@ -1,3 +1,4 @@
+[![Tests](https://github.com/wolfgang/history-search/actions/workflows/tests.yml/badge.svg)](https://github.com/wolfgang/history-search/actions/workflows/tests.yml)
 # Overview
 This is a small utility written in Rust that allows you to search through the shell history in a slightly more fancy way.
 
