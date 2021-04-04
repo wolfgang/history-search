@@ -25,8 +25,7 @@ mod filtering {
     #[test]
     fn with_no_search_term_items_are_unfiltered() {
         let items = vec!["item 1".into(), "item 2".into()];
-        let mut model = ItemListModel::new((10, 20), &items);
-        model.filter_items();
+        let model = ItemListModel::new((10, 20), &items);
         assert_eq!(get_filtered_items(&model), vec![
             (&"item 1".into(), true),
             (&"item 2".into(), false),

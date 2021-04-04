@@ -46,7 +46,7 @@ impl<'a> ItemListModel<'a> {
     pub fn new(display_size: (u16, u16), items: &'a Vec<String>) -> ItemListModel<'a> {
         let (_, rows) = display_size;
         let selection_window_height = min(rows as i16 - 2, 10);
-        Self {
+        let mut instance = Self {
             items,
             search_term: String::with_capacity(64),
             filtered_items: Vec::with_capacity(10),
@@ -54,8 +54,9 @@ impl<'a> ItemListModel<'a> {
             selection: 0,
             selection_window_start: 0,
             selection_window_y: 0,
-
-        }
+        };
+        instance.on_search_term_changed();
+        instance
     }
 
     pub fn add_to_search_term(&mut self, ch: char) {
@@ -100,13 +101,6 @@ impl<'a> ItemListModel<'a> {
             self.selection)
     }
 
-    pub fn filter_items(&mut self) {
-        let search_term_upper = self.search_term.to_ascii_uppercase();
-        self.filtered_items = self.items.iter()
-            .filter(|it| it.to_ascii_uppercase().find(&search_term_upper) != None)
-            .collect()
-    }
-
     pub fn get_selected_item(&self) -> &String {
         match self.filtered_items.get(self.selection as usize) {
             Some(item) => { item }
@@ -123,6 +117,13 @@ impl<'a> ItemListModel<'a> {
         self.selection_window_start = 0;
         self.selection_window_y = 0;
         self.filter_items();
+    }
+
+    fn filter_items(&mut self) {
+        let search_term_upper = self.search_term.to_ascii_uppercase();
+        self.filtered_items = self.items.iter()
+            .filter(|it| it.to_ascii_uppercase().find(&search_term_upper) != None)
+            .collect()
     }
 
     fn get_selection_window_end(&self) -> i16 {
