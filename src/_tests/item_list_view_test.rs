@@ -1,6 +1,8 @@
 use std::io::{Error, Write};
 use std::str::from_utf8;
 
+use fstrings::{f, format_args_f};
+
 use crate::item_list_view::ItemListView;
 
 struct StdoutSpy {
@@ -29,6 +31,12 @@ impl Write for StdoutSpy {
     fn flush(&mut self) -> Result<(), Error> {
         Ok(())
     }
+}
+
+#[test]
+fn fstring() {
+    let greetings = "hello";
+    assert_eq!(f!("{greetings} there"), "hello there");
 }
 
 #[test]
