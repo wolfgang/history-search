@@ -168,6 +168,36 @@ mod selection {
     }
 }
 
+mod get_selected_item {
+    use super::*;
+
+    #[test]
+    fn get_selected_item_returns_currently_selected_item() {
+        let items = vec!["one".into(), "two".into()];
+        let mut model = ItemListModel::new((10, 10), &items);
+        assert_eq!(model.get_selected_item(), "one");
+        model.change_selection(1);
+        assert_eq!(model.get_selected_item(), "two");
+    }
+
+    #[test]
+    fn search_term_narrows_selection() {
+        let items = vec!["one".into(), "two".into()];
+        let mut model = ItemListModel::new((10, 10), &items);
+        model.add_to_search_term('t');
+        assert_eq!(model.get_selected_item(), "two");
+    }
+
+    #[test]
+    fn get_selected_item_returns_search_term_if_no_match() {
+        let items = vec!["one".into(), "two".into()];
+        let mut model = ItemListModel::new((10, 10), &items);
+        model.add_to_search_term('x');
+        model.add_to_search_term('y');
+        assert_eq!(model.get_selected_item(), "xy");
+    }
+}
+
 fn get_filtered_items<'a>(model: &'a ItemListModel) -> Vec<(&'a String, bool)> {
     model.filtered_items_iter().collect()
 }
