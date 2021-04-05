@@ -61,7 +61,7 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
     }
 
 
-    fn render(&mut self, model: &ItemListModel) -> crossterm::Result<()> {
+    pub fn render(&mut self, model: &ItemListModel) -> crossterm::Result<()> {
         execute!(self.stdout, MoveToColumn(0), SavePosition)?;
         println!("> {}\r", model.get_search_term());
         for (item, is_selected) in model.filtered_items_iter() {
