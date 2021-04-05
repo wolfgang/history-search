@@ -113,6 +113,7 @@ mod selection {
         ];
 
         let mut model = ItemListModel::new((10, 5), &items);
+        assert_eq!(model.get_selection_window_height(), 3);
         model.change_selection(1);
         assert_eq!(get_filtered_items(&model), vec![
             (&"one".into(), false),
