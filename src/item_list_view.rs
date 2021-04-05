@@ -1,4 +1,4 @@
-use std::io::Stdout;
+use std::io::Write;
 
 use crossterm::{
     cursor::{MoveToColumn, MoveUp, RestorePosition, SavePosition},
@@ -9,13 +9,13 @@ use crossterm::terminal::size;
 
 use crate::item_list_model::ItemListModel;
 
-pub struct ItemListView<'a> {
-    stdout: &'a Stdout,
+pub struct ItemListView<'a, T> where T: Write {
+    stdout: &'a mut T,
     current_height: u16,
 }
 
-impl<'a> ItemListView<'a> {
-    pub fn new(stdout: &'a Stdout) -> Self {
+impl<'a, T> ItemListView<'a, T> where T: Write {
+    pub fn new(stdout: &'a mut T) -> Self {
         Self { stdout, current_height: 0 }
     }
     pub fn remove(&mut self) -> crossterm::Result<()> {

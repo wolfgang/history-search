@@ -1,4 +1,5 @@
 use std::env;
+use std::io::Write;
 use std::process::Command;
 
 use crossterm::event::{Event, KeyCode, read};
@@ -8,13 +9,13 @@ use crossterm::terminal::disable_raw_mode;
 use crate::item_list_model::ItemListModel;
 use crate::item_list_view::ItemListView;
 
-pub struct ItemListController<'a> {
-    item_list: &'a mut ItemListView<'a>,
+pub struct ItemListController<'a, T> where T: Write {
+    item_list: &'a mut ItemListView<'a, T>,
     item_list_model: &'a mut ItemListModel<'a>,
 }
 
-impl<'a> ItemListController<'a> {
-    pub fn new(item_list: &'a mut ItemListView<'a>, item_list_model: &'a mut ItemListModel<'a>) -> ItemListController<'a> {
+impl<'a, T> ItemListController<'a, T> where T: Write {
+    pub fn new(item_list: &'a mut ItemListView<'a, T>, item_list_model: &'a mut ItemListModel<'a>) -> ItemListController<'a, T> {
         ItemListController { item_list, item_list_model }
     }
 
