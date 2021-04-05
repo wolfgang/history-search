@@ -9,11 +9,11 @@ use crossterm::terminal::size;
 
 use crate::item_list_model::ItemListModel;
 
-pub struct ItemList {
+pub struct ItemListView {
     current_height: u16
 }
 
-impl ItemList {
+impl ItemListView {
     pub fn new() -> Self {
         Self { current_height: 0 }
     }
