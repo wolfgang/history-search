@@ -3,16 +3,6 @@ use std::cmp::{max, min};
 type FilteredItems<'a> = Vec<&'a String>;
 type FilteredItem<'a> = (&'a String, bool);
 
-pub struct ItemListModel<'a> {
-    items: &'a Vec<String>,
-    filtered_items: FilteredItems<'a>,
-    search_term: String,
-    selection: i16,
-    selection_window_start: i16,
-    selection_window_height: i16,
-    selection_window_y: i16,
-}
-
 pub struct FilteredItemsIterator<'a> {
     items: &'a FilteredItems<'a>,
     end_index: i16,
@@ -42,10 +32,19 @@ impl<'a> Iterator for FilteredItemsIterator<'a> {
     }
 }
 
+pub struct ItemListModel<'a> {
+    items: &'a Vec<String>,
+    filtered_items: FilteredItems<'a>,
+    search_term: String,
+    selection: i16,
+    selection_window_start: i16,
+    selection_window_height: i16,
+    selection_window_y: i16,
+}
+
 impl<'a> ItemListModel<'a> {
-    pub fn new(display_size: (u16, u16), items: &'a Vec<String>) -> ItemListModel<'a> {
-        let (_, rows) = display_size;
-        let selection_window_height = min(rows as i16 - 2, 10);
+    pub fn new(display_height: u16, items: &'a Vec<String>) -> ItemListModel<'a> {
+        let selection_window_height = min(display_height as i16 - 2, 10);
         let mut instance = Self {
             items,
             search_term: String::with_capacity(64),

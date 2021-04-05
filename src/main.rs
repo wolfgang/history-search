@@ -11,13 +11,13 @@ fn main() -> crossterm::Result<()> {
     let mut args: Vec<String> = env::args().collect();
     args.remove(0);
 
-    if !args.is_empty() && args[0] == "-h" { return display_help() }
+    if !args.is_empty() && args[0] == "-h" { return display_help(); }
 
     let item_storage = ItemStorage::new();
     let items = item_storage.read_items();
-    let size = size()?;
+    let (_, rows) = size()?;
     let mut item_list = ItemListView::new();
-    let mut item_list_model = ItemListModel::new(size, &items);
+    let mut item_list_model = ItemListModel::new(rows, &items);
     enable_raw_mode()?;
     ItemListController::new(&mut item_list, &mut item_list_model).run()?;
     return disable_raw_mode();
@@ -29,5 +29,5 @@ fn display_help() -> crossterm::Result<()> {
     println!("  Enter to execute the selected command,");
     println!("  Arrow up/down to change selection");
     println!("  Escape to cancel");
-    return Ok(())
+    return Ok(());
 }
