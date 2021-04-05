@@ -60,7 +60,7 @@ mod render {
         let items = Vec::new();
         let model = ItemListModel::new(10, &items);
         view.render(&model)?;
-        assert_eq!(stdout_spy.written_buf_as_str(), "\u{1b}[0G\u{1b}7\u{1b}8\u{1b}[3G");
+        assert_eq!(stdout_spy.written_buf_as_str(), "\u{1b}[0G\u{1b}7> \n\r\u{1b}8\u{1b}[3G");
         Ok(())
     }
 }
