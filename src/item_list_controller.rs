@@ -9,12 +9,12 @@ use crate::item_list_model::ItemListModel;
 use crate::item_list_view::ItemListView;
 
 pub struct ItemListController<'a> {
-    item_list: &'a mut ItemListView,
+    item_list: &'a mut ItemListView<'a>,
     item_list_model: &'a mut ItemListModel<'a>,
 }
 
 impl<'a> ItemListController<'a> {
-    pub fn new(item_list: &'a mut ItemListView, item_list_model: &'a mut ItemListModel<'a>) -> ItemListController<'a> {
+    pub fn new(item_list: &'a mut ItemListView<'a>, item_list_model: &'a mut ItemListModel<'a>) -> ItemListController<'a> {
         ItemListController { item_list, item_list_model }
     }
 

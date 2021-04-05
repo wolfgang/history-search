@@ -1,4 +1,4 @@
-use std::io::stdout;
+use std::io::Stdout;
 
 use crossterm::{
     cursor::{MoveToColumn, MoveUp, RestorePosition, SavePosition},
@@ -9,13 +9,14 @@ use crossterm::terminal::size;
 
 use crate::item_list_model::ItemListModel;
 
-pub struct ItemListView {
-    current_height: u16
+pub struct ItemListView<'a> {
+    stdout: &'a Stdout,
+    current_height: u16,
 }
 
-impl ItemListView {
-    pub fn new() -> Self {
-        Self { current_height: 0 }
+impl<'a> ItemListView<'a> {
+    pub fn new(stdout: &'a Stdout) -> Self {
+        Self { stdout, current_height: 0 }
     }
     pub fn remove(&mut self) -> crossterm::Result<()> {
         self.clear()?;
@@ -23,7 +24,7 @@ impl ItemListView {
     }
 
     pub fn reset_cursor_column(&mut self) -> crossterm::Result<()> {
-        execute!(stdout(), MoveToColumn(0))
+        execute!(self.stdout, MoveToColumn(0))
     }
 
     pub fn refresh(&mut self, model: &ItemListModel) -> crossterm::Result<()> {
@@ -49,23 +50,24 @@ impl ItemListView {
     }
 
     fn clear(&mut self) -> crossterm::Result<()> {
-        execute!(stdout(), MoveToColumn(0))?;
+        execute!(self.stdout, MoveToColumn(0))?;
         let (cols, _) = size()?;
         let blank_line = " ".repeat(cols as usize - 1);
         for _ in 0..self.current_height {
             println!("{}\r", blank_line);
         }
-        execute!(stdout(), MoveUp(self.current_height))
+        let rows = self.current_height;
+        execute!(self.stdout, MoveUp(rows))
     }
 
 
     fn render(&mut self, model: &ItemListModel) -> crossterm::Result<()> {
-        execute!(stdout(), MoveToColumn(0), SavePosition)?;
+        execute!(self.stdout, MoveToColumn(0), SavePosition)?;
         println!("> {}\r", model.get_search_term());
         for (item, is_selected) in model.filtered_items_iter() {
             println!("{}\r", Self::printable_item(item, is_selected));
         }
-        execute!(stdout(),RestorePosition,MoveToColumn(model.get_search_term().len() as u16 + 3))
+        execute!(self.stdout,RestorePosition,MoveToColumn(model.get_search_term().len() as u16 + 3))
     }
 
     fn printable_item(item: &String, is_selected: bool) -> StyledContent<String> {
