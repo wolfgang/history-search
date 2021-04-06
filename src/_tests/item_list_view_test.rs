@@ -44,4 +44,22 @@ mod render {
         {esc}8{esc}[3G"));
         Ok(())
     }
+
+    #[test]
+    fn render_search_term_and_matching_items() -> crossterm::Result<()> {
+        let mut stdout_spy = StdoutSpy::new();
+        let mut view = ItemListView::new(&mut stdout_spy);
+        let items = vec!["one".into(), "tree".into(), "palm tree".into()];
+        let mut model = ItemListModel::new(10, &items);
+        model.add_to_search_term('t');
+        model.add_to_search_term('r');
+        model.add_to_search_term('e');
+        view.render(&model)?;
+        stdout_spy.assert(f!("\
+        {esc}[0G{esc}7> tre\n\r\
+        {esc}[7mtree{esc}[0m\n\r\
+        {esc}[0mpalm tree{esc}[0m\n\r\
+        {esc}8{esc}[6G"));
+        Ok(())
+    }
 }
