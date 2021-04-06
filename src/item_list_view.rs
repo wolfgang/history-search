@@ -51,7 +51,7 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
         execute!(self.stdout, MoveToColumn(0))?;
         let blank_line = " ".repeat(display_width as usize);
         for _ in 0..self.current_height {
-            println!("{}\r", blank_line);
+            self.stdout.write_fmt(format_args!("{}\n\r", blank_line))?;
         }
         let rows = self.current_height;
         execute!(self.stdout, MoveUp(rows))
