@@ -52,7 +52,7 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
     fn clear(&mut self) -> crossterm::Result<()> {
         execute!(self.stdout, MoveToColumn(0))?;
         let (cols, _) = size()?;
-        let blank_line = " ".repeat(cols as usize - 1);
+        let blank_line = " ".repeat(cols as usize);
         for _ in 0..self.current_height {
             println!("{}\r", blank_line);
         }
@@ -65,7 +65,7 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
         execute!(self.stdout, MoveToColumn(0), SavePosition)?;
         self.stdout.write_fmt(format_args!("> {}\n\r", model.get_search_term()))?;
         for (item, is_selected) in model.filtered_items_iter() {
-            println!("{}\r", Self::printable_item(item, is_selected));
+            self.stdout.write_fmt(format_args!("{}\n\r", Self::printable_item(item, is_selected)))?;
         }
         execute!(self.stdout,RestorePosition,MoveToColumn(model.get_search_term().len() as u16 + 3))
     }

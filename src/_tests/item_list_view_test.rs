@@ -20,13 +20,28 @@ mod render {
     use super::*;
 
     #[test]
-    fn render_with_no_items() -> crossterm::Result<()> {
+    fn render_empty_prompt_if_no_items() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
         let mut view = ItemListView::new(&mut stdout_spy);
         let items = Vec::new();
         let model = ItemListModel::new(10, &items);
         view.render(&model)?;
         stdout_spy.assert(f!("{esc}[0G{esc}7> \n\r{esc}8{esc}[3G"));
+        Ok(())
+    }
+
+    #[test]
+    fn render_all_items_if_no_search_term() -> crossterm::Result<()> {
+        let mut stdout_spy = StdoutSpy::new();
+        let mut view = ItemListView::new(&mut stdout_spy);
+        let items = vec!["one".into(), "two".into()];
+        let model = ItemListModel::new(10, &items);
+        view.render(&model)?;
+        stdout_spy.assert(f!("\
+        {esc}[0G{esc}7> \n\r\
+        {esc}[7mone{esc}[0m\n\r\
+        {esc}[0mtwo{esc}[0m\n\r\
+        {esc}8{esc}[3G"));
         Ok(())
     }
 }
