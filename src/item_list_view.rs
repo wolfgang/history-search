@@ -16,6 +16,20 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
     pub fn new(stdout: &'a mut T) -> Self {
         Self { stdout }
     }
+
+    pub fn get_renderable_items_count(&self, display_width: u16, model: &ItemListModel) -> u16 {
+        let mut current_height = 0;
+        let mut count: u16 = 0;
+        for (item, _) in model.filtered_items_iter() {
+            let line_height = (item.len() as f64 / display_width as f64).ceil() as u16;
+            if current_height + line_height > 10 { break }
+            current_height += line_height;
+            count += 1;
+        }
+
+        count
+    }
+
     pub fn remove(&mut self, display_width: u16, model: &ItemListModel) -> crossterm::Result<()> {
         self.clear(display_width, model)?;
         self.reset_cursor_column()
@@ -33,7 +47,7 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
     fn clear(&mut self, display_width: u16, model: &ItemListModel) -> crossterm::Result<()> {
         execute!(self.stdout, MoveToColumn(0))?;
         let blank_line = " ".repeat(display_width as usize);
-        let rows = (model.get_selection_window_height() + 1) as u16;
+        let rows = 11;
         for _ in 0..rows {
             self.stdout.write_fmt(format_args!("{}\n\r", blank_line))?;
         }

@@ -67,6 +67,7 @@ mod render {
 mod refresh {
     use super::*;
 
+    #[ignore]
     #[test]
     fn render_empty_prompt_if_no_items() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
