@@ -39,7 +39,7 @@ pub struct ItemListModel<'a> {
     selection: i16,
     selection_window_start: i16,
     selection_window_height: i16,
-    selection_window_y: i16,
+    selection_window_y: i16
 }
 
 impl<'a> ItemListModel<'a> {
@@ -52,7 +52,7 @@ impl<'a> ItemListModel<'a> {
             selection_window_height,
             selection: 0,
             selection_window_start: 0,
-            selection_window_y: 0,
+            selection_window_y: 0
         };
         instance.on_search_term_changed();
         instance

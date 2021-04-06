@@ -10,7 +10,7 @@ const esc: &str = "\u{1b}";
 #[test]
 fn reset_cursor_column_writes_correct_escape_sequence() -> crossterm::Result<()> {
     let mut stdout_spy = StdoutSpy::new();
-    let mut view = ItemListView::new(&mut stdout_spy);
+    let mut view = ItemListView::new(10, &mut stdout_spy);
     view.reset_cursor_column()?;
     stdout_spy.assert(f!("{esc}[0G"));
     Ok(())
@@ -22,7 +22,7 @@ mod render {
     #[test]
     fn render_empty_prompt_if_no_items() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
-        let mut view = ItemListView::new(&mut stdout_spy);
+        let mut view = ItemListView::new(10, &mut stdout_spy);
         let items = Vec::new();
         let model = ItemListModel::new(10, &items);
         view.render(&model)?;
@@ -33,7 +33,7 @@ mod render {
     #[test]
     fn render_all_items_if_no_search_term() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
-        let mut view = ItemListView::new(&mut stdout_spy);
+        let mut view = ItemListView::new(10, &mut stdout_spy);
         let items = vec!["one".into(), "two".into()];
         let model = ItemListModel::new(10, &items);
         view.render(&model)?;
@@ -48,7 +48,7 @@ mod render {
     #[test]
     fn render_search_term_and_matching_items() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
-        let mut view = ItemListView::new(&mut stdout_spy);
+        let mut view = ItemListView::new(10, &mut stdout_spy);
         let items = vec!["one".into(), "tree".into(), "palm tree".into()];
         let mut model = ItemListModel::new(10, &items);
         model.add_to_search_term('t');
@@ -71,7 +71,7 @@ mod refresh {
     #[test]
     fn render_empty_prompt_if_no_items() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
-        let mut view = ItemListView::new(&mut stdout_spy);
+        let mut view = ItemListView::new(10, &mut stdout_spy);
         let items = Vec::new();
         let model = ItemListModel::new(5, &items);
         view.refresh(10, &model)?;

@@ -71,7 +71,7 @@ impl<'a, T> ItemListController<'a, T> where T: Write {
 
     fn refresh_item_list(&mut self) -> crossterm::Result<()> {
         let (display_width, _) = size()?;
-        self.item_list_model.set_selection_window_height(10);
+        self.item_list_model.set_selection_window_height(self.item_list.get_max_lines() as i16);
         let count = self.item_list.get_renderable_items_count(display_width, self.item_list_model);
         self.item_list_model.set_selection_window_height(count as i16);
         self.item_list.refresh(display_width, self.item_list_model)
@@ -79,7 +79,7 @@ impl<'a, T> ItemListController<'a, T> where T: Write {
 
     fn remove_item_list(&mut self) -> crossterm::Result<()> {
         let (display_width, _) = size()?;
-        self.item_list.remove(display_width, self.item_list_model)
+        self.item_list.remove(display_width)
     }
 
     fn print_command_info(&self, command: &str) {
