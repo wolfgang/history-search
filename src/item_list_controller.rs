@@ -4,7 +4,7 @@ use std::process::Command;
 
 use crossterm::event::{Event, KeyCode, read};
 use crossterm::style::Colorize;
-use crossterm::terminal::disable_raw_mode;
+use crossterm::terminal::{disable_raw_mode, size};
 
 use crate::item_list_model::ItemListModel;
 use crate::item_list_view::ItemListView;
@@ -70,11 +70,13 @@ impl<'a, T> ItemListController<'a, T> where T: Write {
     }
 
     fn refresh_item_list(&mut self) -> crossterm::Result<()> {
-        self.item_list.refresh(self.item_list_model)
+        let (display_width, _) = size()?;
+        self.item_list.refresh(display_width, self.item_list_model)
     }
 
     fn remove_item_list(&mut self) -> crossterm::Result<()> {
-        self.item_list.remove()
+        let (display_width, _) = size()?;
+        self.item_list.remove(display_width)
     }
 
     fn print_command_info(&self, command: &str) {
