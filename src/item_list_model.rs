@@ -5,18 +5,18 @@ type FilteredItem<'a> = (&'a String, bool);
 
 pub struct FilteredItemsIterator<'a> {
     items: &'a FilteredItems<'a>,
-    end_index: i16,
+    current_index: u16,
+    end_index: u16,
     selected_index: i16,
-    current_index: i16,
 }
 
 impl<'a> FilteredItemsIterator<'a> {
-    pub fn new(items: &'a FilteredItems, start_index: i16, end_index: i16, selected_index: i16) -> FilteredItemsIterator<'a> {
+    pub fn new(items: &'a FilteredItems, start_index: u16, end_index: u16, selected_index: i16) -> FilteredItemsIterator<'a> {
         FilteredItemsIterator {
             items,
+            current_index: start_index,
             end_index,
             selected_index,
-            current_index: start_index,
         }
     }
 }
@@ -25,8 +25,8 @@ impl<'a> Iterator for FilteredItemsIterator<'a> {
     type Item = FilteredItem<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current_index == self.end_index { return None; }
-        let result = Some((self.items[self.current_index as usize], self.current_index == self.selected_index));
+        if self.current_index == self.end_index as u16 { return None; }
+        let result = Some((self.items[self.current_index as usize], self.current_index == self.selected_index as u16));
         self.current_index += 1;
         result
     }
@@ -37,9 +37,9 @@ pub struct ItemListModel<'a> {
     filtered_items: FilteredItems<'a>,
     search_term: String,
     selection: i16,
-    selection_window_start: i16,
-    selection_window_height: i16,
-    selection_window_y: i16,
+    selection_window_start: u16,
+    selection_window_height: u16,
+    selection_window_y: u16,
     max_selection_window_height: u16,
 }
 
@@ -50,7 +50,7 @@ impl<'a> ItemListModel<'a> {
             search_term: String::with_capacity(64),
             filtered_items: Vec::with_capacity(10),
             max_selection_window_height,
-            selection_window_height: max_selection_window_height as i16,
+            selection_window_height: max_selection_window_height,
             selection: 0,
             selection_window_start: 0,
             selection_window_y: 0,
@@ -85,10 +85,10 @@ impl<'a> ItemListModel<'a> {
 
         if direction == -1 && self.selection_window_y == 0 {
             self.selection_window_start -= 1;
-        } else if direction == 1 && self.selection_window_y == self.selection_window_height - 1 {
+        } else if direction == 1 && self.selection_window_y as u16 == self.selection_window_height - 1 {
             self.selection_window_start += 1;
         } else {
-            self.selection_window_y += direction;
+            self.selection_window_y = (self.selection_window_y as i16 + direction) as u16;
         }
         true
     }
@@ -108,16 +108,16 @@ impl<'a> ItemListModel<'a> {
         }
     }
 
-    pub fn get_selection_window_height(&self) -> i16 {
+    pub fn get_selection_window_height(&self) -> u16 {
         self.selection_window_height
     }
 
-    pub fn set_selection_window_height(&mut self, value: i16) {
+    pub fn set_selection_window_height(&mut self, value: u16) {
         self.selection_window_height = value;
     }
 
     pub fn reset_selection_window_height(&mut self) {
-        self.set_selection_window_height(self.max_selection_window_height as i16);
+        self.set_selection_window_height(self.max_selection_window_height);
     }
 
     fn on_search_term_changed(&mut self) {
@@ -134,9 +134,9 @@ impl<'a> ItemListModel<'a> {
             .collect()
     }
 
-    fn get_selection_window_end(&self) -> i16 {
+    fn get_selection_window_end(&self) -> u16 {
         return min(
-            self.filtered_items.len() as i16,
+            self.filtered_items.len() as u16,
             self.selection_window_start + self.selection_window_height);
     }
 }
