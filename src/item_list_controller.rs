@@ -4,7 +4,7 @@ use std::process::Command;
 
 use crossterm::event::{Event, KeyCode, read};
 use crossterm::style::Colorize;
-use crossterm::terminal::{disable_raw_mode, size};
+use crossterm::terminal::disable_raw_mode;
 
 use crate::item_list_model::ItemListModel;
 use crate::item_list_view::ItemListView;
@@ -57,11 +57,11 @@ impl<'a, T> ItemListController<'a, T> where T: Write {
     }
 
     fn on_cancel(&mut self) -> crossterm::Result<()> {
-        self.remove_item_list()
+        self.item_list.remove()
     }
 
     fn on_enter(&mut self) -> crossterm::Result<()> {
-        self.remove_item_list()?;
+        self.item_list.remove()?;
         let command = self.item_list_model.get_selected_item().to_string();
         self.print_command_info(&command);
         disable_raw_mode()?;
@@ -70,16 +70,10 @@ impl<'a, T> ItemListController<'a, T> where T: Write {
     }
 
     fn refresh_item_list(&mut self) -> crossterm::Result<()> {
-        let (display_width, _) = size()?;
         self.item_list_model.reset_selection_window_height();
-        let count = self.item_list.get_renderable_items_count(display_width, self.item_list_model);
+        let count = self.item_list.get_renderable_items_count(self.item_list_model);
         self.item_list_model.set_selection_window_height(count);
-        self.item_list.refresh(display_width, self.item_list_model)
-    }
-
-    fn remove_item_list(&mut self) -> crossterm::Result<()> {
-        let (display_width, _) = size()?;
-        self.item_list.remove(display_width)
+        self.item_list.refresh(self.item_list_model)
     }
 
     fn print_command_info(&self, command: &str) {

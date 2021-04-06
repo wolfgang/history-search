@@ -10,7 +10,7 @@ const esc: &str = "\u{1b}";
 #[test]
 fn reset_cursor_column_writes_correct_escape_sequence() -> crossterm::Result<()> {
     let mut stdout_spy = StdoutSpy::new();
-    let mut view = ItemListView::new(10, &mut stdout_spy);
+    let mut view = ItemListView::new(10, 10, &mut stdout_spy);
     view.reset_cursor_column()?;
     stdout_spy.assert(f!("{esc}[0G"));
     Ok(())
@@ -22,7 +22,7 @@ mod render {
     #[test]
     fn render_empty_prompt_if_no_items() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
-        let mut view = ItemListView::new(10, &mut stdout_spy);
+        let mut view = ItemListView::new(10, 10, &mut stdout_spy);
         let items = Vec::new();
         let model = ItemListModel::new(10, &items);
         view.render(&model)?;
@@ -33,7 +33,7 @@ mod render {
     #[test]
     fn render_all_items_if_no_search_term() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
-        let mut view = ItemListView::new(10, &mut stdout_spy);
+        let mut view = ItemListView::new(10, 10, &mut stdout_spy);
         let items = vec!["one".into(), "two".into()];
         let model = ItemListModel::new(10, &items);
 
@@ -49,7 +49,7 @@ mod render {
     #[test]
     fn render_search_term_and_matching_items() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
-        let mut view = ItemListView::new(10, &mut stdout_spy);
+        let mut view = ItemListView::new(10, 10, &mut stdout_spy);
         let items = vec!["one".into(), "tree".into(), "palm tree".into()];
         let mut model = ItemListModel::new(10, &items);
 
@@ -72,11 +72,12 @@ mod refresh {
     #[test]
     fn render_empty_prompt_if_no_items() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
-        let mut view = ItemListView::new(3, &mut stdout_spy);
-        let items = Vec::new();
-        let model = ItemListModel::new(3, &items);
+        let display_height = 4;
         let display_width = 10;
-        view.refresh(display_width, &model)?;
+        let mut view = ItemListView::new(display_height, display_width, &mut stdout_spy);
+        let items = Vec::new();
+        let model = ItemListModel::new(display_height - 1, &items);
+        view.refresh(&model)?;
         let clear = f!("{esc}[0G          \n\r          \n\r          \n\r          \n\r{esc}[4A");
         let render_prompt = f!("{esc}[0G{esc}7> \n\r");
         let restore_cursor = f!("{esc}8{esc}[3G");

@@ -9,21 +9,22 @@ use crossterm::style::{StyledContent, Styler};
 use crate::item_list_model::ItemListModel;
 
 pub struct ItemListView<'a, T> where T: Write {
-    max_renderable_items: u16,
+    display_height: u16,
+    display_width: u16,
     stdout: &'a mut T,
 }
 
 impl<'a, T> ItemListView<'a, T> where T: Write {
-    pub fn new(max_renderable_items: u16, stdout: &'a mut T) -> Self {
-        Self { max_renderable_items, stdout }
+    pub fn new(display_height: u16, display_width: u16, stdout: &'a mut T) -> Self {
+        Self { display_height, display_width, stdout }
     }
 
-    pub fn get_renderable_items_count(&self, display_width: u16, model: &ItemListModel) -> u16 {
+    pub fn get_renderable_items_count(&self, model: &ItemListModel) -> u16 {
         let mut current_height = 0;
         let mut count: u16 = 0;
         for (item, _) in model.filtered_items_iter() {
-            let line_height = (item.len() as f64 / display_width as f64).ceil() as u16;
-            if current_height + line_height > self.max_renderable_items { break; }
+            let line_height = (item.len() as f64 / self.display_width as f64).ceil() as u16;
+            if current_height + line_height > self.display_height - 1 { break; }
             current_height += line_height;
             count += 1;
         }
@@ -31,8 +32,8 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
         count
     }
 
-    pub fn remove(&mut self, display_width: u16) -> crossterm::Result<()> {
-        self.clear(display_width)?;
+    pub fn remove(&mut self) -> crossterm::Result<()> {
+        self.clear()?;
         self.reset_cursor_column()
     }
 
@@ -40,15 +41,15 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
         execute!(self.stdout, MoveToColumn(0))
     }
 
-    pub fn refresh(&mut self, display_width: u16, model: &ItemListModel) -> crossterm::Result<()> {
-        self.clear(display_width)?;
+    pub fn refresh(&mut self, model: &ItemListModel) -> crossterm::Result<()> {
+        self.clear()?;
         self.render(model)
     }
 
-    fn clear(&mut self, display_width: u16) -> crossterm::Result<()> {
+    fn clear(&mut self) -> crossterm::Result<()> {
         execute!(self.stdout, MoveToColumn(0))?;
-        let blank_line = " ".repeat(display_width as usize);
-        let rows = self.max_renderable_items + 1;
+        let blank_line = " ".repeat(self.display_width as usize);
+        let rows = self.display_height;
         for _ in 0..rows {
             self.stdout.write_fmt(format_args!("{}\n\r", blank_line))?;
         }
@@ -66,7 +67,7 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
     }
 
     pub fn get_max_lines(&self) -> u16 {
-        self.max_renderable_items
+        self.display_height
     }
 
     fn printable_item(item: &String, is_selected: bool) -> StyledContent<String> {

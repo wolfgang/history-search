@@ -1,7 +1,7 @@
 use std::env;
 use std::io::stdout;
 
-use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
+use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size};
 
 use hs::item_list_controller::ItemListController;
 use hs::item_list_model::ItemListModel;
@@ -17,8 +17,10 @@ fn main() -> crossterm::Result<()> {
     let item_storage = ItemStorage::new();
     let items = item_storage.read_items();
     let mut stdout = stdout();
-    let mut item_list = ItemListView::new(10, &mut stdout);
-    let mut item_list_model = ItemListModel::new(10, &items);
+    let (display_width, _) = size()?;
+    let display_height = 11;
+    let mut item_list = ItemListView::new(display_height, display_width, &mut stdout);
+    let mut item_list_model = ItemListModel::new(display_height - 1, &items);
     enable_raw_mode()?;
     ItemListController::new(&mut item_list, &mut item_list_model).run()?;
     return disable_raw_mode();
