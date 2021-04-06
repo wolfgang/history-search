@@ -9,17 +9,17 @@ use crossterm::style::{StyledContent, Styler};
 use crate::item_list_model::ItemListModel;
 
 pub struct ItemListView<'a, T> where T: Write {
-    max_lines: u16,
+    max_renderable_items: u16,
     stdout: &'a mut T,
 }
 
 impl<'a, T> ItemListView<'a, T> where T: Write {
-    pub fn new(max_lines: u16, stdout: &'a mut T) -> Self {
-        Self { max_lines, stdout }
+    pub fn new(max_renderable_items: u16, stdout: &'a mut T) -> Self {
+        Self { max_renderable_items, stdout }
     }
 
     pub fn get_renderable_items_count(&self, display_width: u16, model: &ItemListModel) -> u16 {
-        let max_height = self.max_lines;
+        let max_height = self.max_renderable_items;
         let mut current_height = 0;
         let mut count: u16 = 0;
         for (item, _) in model.filtered_items_iter() {
@@ -49,7 +49,7 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
     fn clear(&mut self, display_width: u16) -> crossterm::Result<()> {
         execute!(self.stdout, MoveToColumn(0))?;
         let blank_line = " ".repeat(display_width as usize);
-        let rows = self.max_lines + 1;
+        let rows = self.max_renderable_items + 1;
         for _ in 0..rows {
             self.stdout.write_fmt(format_args!("{}\n\r", blank_line))?;
         }
@@ -67,7 +67,7 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
     }
 
     pub fn get_max_lines(&self) -> u16 {
-        self.max_lines
+        self.max_renderable_items
     }
 
     fn printable_item(item: &String, is_selected: bool) -> StyledContent<String> {

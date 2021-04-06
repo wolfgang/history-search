@@ -43,16 +43,15 @@ pub struct ItemListModel<'a> {
 }
 
 impl<'a> ItemListModel<'a> {
-    pub fn new(display_height: u16, items: &'a Vec<String>) -> ItemListModel<'a> {
-        let selection_window_height = min(display_height as i16 - 2, 10);
+    pub fn new(items: &'a Vec<String>) -> ItemListModel<'a> {
         let mut instance = Self {
             items,
             search_term: String::with_capacity(64),
             filtered_items: Vec::with_capacity(10),
-            selection_window_height,
+            selection_window_height: 0,
             selection: 0,
             selection_window_start: 0,
-            selection_window_y: 0
+            selection_window_y: 0,
         };
         instance.on_search_term_changed();
         instance
