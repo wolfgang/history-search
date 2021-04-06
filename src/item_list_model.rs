@@ -39,16 +39,18 @@ pub struct ItemListModel<'a> {
     selection: i16,
     selection_window_start: i16,
     selection_window_height: i16,
-    selection_window_y: i16
+    selection_window_y: i16,
+    max_selection_window_height: u16,
 }
 
 impl<'a> ItemListModel<'a> {
-    pub fn new(items: &'a Vec<String>) -> ItemListModel<'a> {
+    pub fn new(max_selection_window_height: u16, items: &'a Vec<String>) -> ItemListModel<'a> {
         let mut instance = Self {
             items,
             search_term: String::with_capacity(64),
             filtered_items: Vec::with_capacity(10),
-            selection_window_height: 0,
+            max_selection_window_height,
+            selection_window_height: max_selection_window_height as i16,
             selection: 0,
             selection_window_start: 0,
             selection_window_y: 0,
@@ -112,6 +114,10 @@ impl<'a> ItemListModel<'a> {
 
     pub fn set_selection_window_height(&mut self, value: i16) {
         self.selection_window_height = value;
+    }
+
+    pub fn reset_selection_window_height(&mut self) {
+        self.set_selection_window_height(self.max_selection_window_height as i16);
     }
 
     fn on_search_term_changed(&mut self) {

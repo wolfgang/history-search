@@ -19,12 +19,11 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
     }
 
     pub fn get_renderable_items_count(&self, display_width: u16, model: &ItemListModel) -> u16 {
-        let max_height = self.max_renderable_items;
         let mut current_height = 0;
         let mut count: u16 = 0;
         for (item, _) in model.filtered_items_iter() {
             let line_height = (item.len() as f64 / display_width as f64).ceil() as u16;
-            if current_height + line_height > max_height { break; }
+            if current_height + line_height > self.max_renderable_items { break; }
             current_height += line_height;
             count += 1;
         }

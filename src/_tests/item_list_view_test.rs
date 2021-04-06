@@ -24,7 +24,7 @@ mod render {
         let mut stdout_spy = StdoutSpy::new();
         let mut view = ItemListView::new(10, &mut stdout_spy);
         let items = Vec::new();
-        let model = ItemListModel::new(&items);
+        let model = ItemListModel::new(10, &items);
         view.render(&model)?;
         stdout_spy.assert(f!("{esc}[0G{esc}7> \n\r{esc}8{esc}[3G"));
         Ok(())
@@ -35,8 +35,7 @@ mod render {
         let mut stdout_spy = StdoutSpy::new();
         let mut view = ItemListView::new(10, &mut stdout_spy);
         let items = vec!["one".into(), "two".into()];
-        let mut model = ItemListModel::new(&items);
-        model.set_selection_window_height(10);
+        let model = ItemListModel::new(10, &items);
 
         view.render(&model)?;
         stdout_spy.assert(f!("\
@@ -52,8 +51,7 @@ mod render {
         let mut stdout_spy = StdoutSpy::new();
         let mut view = ItemListView::new(10, &mut stdout_spy);
         let items = vec!["one".into(), "tree".into(), "palm tree".into()];
-        let mut model = ItemListModel::new(&items);
-        model.set_selection_window_height(10);
+        let mut model = ItemListModel::new(10, &items);
 
         model.add_to_search_term('t');
         model.add_to_search_term('r');
@@ -71,14 +69,14 @@ mod render {
 mod refresh {
     use super::*;
 
-    #[ignore]
     #[test]
     fn render_empty_prompt_if_no_items() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
-        let mut view = ItemListView::new(10, &mut stdout_spy);
+        let mut view = ItemListView::new(3, &mut stdout_spy);
         let items = Vec::new();
-        let model = ItemListModel::new(&items);
-        view.refresh(10, &model)?;
+        let model = ItemListModel::new(3, &items);
+        let display_width = 10;
+        view.refresh(display_width, &model)?;
         let clear = f!("{esc}[0G          \n\r          \n\r          \n\r          \n\r{esc}[4A");
         let render_prompt = f!("{esc}[0G{esc}7> \n\r");
         let restore_cursor = f!("{esc}8{esc}[3G");

@@ -18,7 +18,7 @@ fn main() -> crossterm::Result<()> {
     let items = item_storage.read_items();
     let mut stdout = stdout();
     let mut item_list = ItemListView::new(10, &mut stdout);
-    let mut item_list_model = ItemListModel::new(&items);
+    let mut item_list_model = ItemListModel::new(10, &items);
     enable_raw_mode()?;
     ItemListController::new(&mut item_list, &mut item_list_model).run()?;
     return disable_raw_mode();
