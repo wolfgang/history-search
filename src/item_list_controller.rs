@@ -76,7 +76,7 @@ impl<'a, T> ItemListController<'a, T> where T: Write {
 
     fn remove_item_list(&mut self) -> crossterm::Result<()> {
         let (display_width, _) = size()?;
-        self.item_list.remove(display_width)
+        self.item_list.remove(display_width, self.item_list_model)
     }
 
     fn print_command_info(&self, command: &str) {

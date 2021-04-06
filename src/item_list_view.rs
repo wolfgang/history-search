@@ -10,15 +10,14 @@ use crate::item_list_model::ItemListModel;
 
 pub struct ItemListView<'a, T> where T: Write {
     stdout: &'a mut T,
-    current_height: u16,
 }
 
 impl<'a, T> ItemListView<'a, T> where T: Write {
     pub fn new(stdout: &'a mut T) -> Self {
-        Self { stdout, current_height: 0 }
+        Self { stdout }
     }
-    pub fn remove(&mut self, display_width: u16) -> crossterm::Result<()> {
-        self.clear(display_width)?;
+    pub fn remove(&mut self, display_width: u16, model: &ItemListModel) -> crossterm::Result<()> {
+        self.clear(display_width, model)?;
         self.reset_cursor_column()
     }
 
@@ -27,33 +26,17 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
     }
 
     pub fn refresh(&mut self, display_width: u16, model: &ItemListModel) -> crossterm::Result<()> {
-        self.prepare_next_frame(display_width, model)?;
-        self.clear(display_width)?;
+        self.clear(display_width, model)?;
         self.render(model)
     }
 
-    fn prepare_next_frame(&mut self, display_width: u16, model: &ItemListModel) -> crossterm::Result<()> {
-        // Count input line
-        let mut current_height = 1;
-        let mut count = 0;
-        for (item, _) in model.filtered_items_iter() {
-            current_height = current_height + (item.len() as f64 / display_width as f64).ceil() as u16;
-            count += 1;
-        }
-
-        current_height += (model.get_selection_window_height() - count) as u16;
-
-        self.current_height = current_height;
-        Ok(())
-    }
-
-    fn clear(&mut self, display_width: u16) -> crossterm::Result<()> {
+    fn clear(&mut self, display_width: u16, model: &ItemListModel) -> crossterm::Result<()> {
         execute!(self.stdout, MoveToColumn(0))?;
         let blank_line = " ".repeat(display_width as usize);
-        for _ in 0..self.current_height {
+        let rows = (model.get_selection_window_height() + 1) as u16;
+        for _ in 0..rows {
             self.stdout.write_fmt(format_args!("{}\n\r", blank_line))?;
         }
-        let rows = self.current_height;
         execute!(self.stdout, MoveUp(rows))
     }
 
