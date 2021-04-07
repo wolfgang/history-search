@@ -1,4 +1,5 @@
 use crate::item_list_model::ItemListModel;
+use crate::types::SelectableItem;
 
 mod construction {
     use super::*;
@@ -217,11 +218,11 @@ fn model(items: Vec<String>) -> ItemListModel {
     model
 }
 
-fn get_selectable_items(model: &ItemListModel) -> Vec<(String, bool)> {
+fn get_selectable_items(model: &ItemListModel) -> Vec<SelectableItem> {
     model.selectable_items_iter().collect()
 }
 
-fn get_filtered_items(model: &ItemListModel) -> Vec<(String, bool)> {
+fn get_filtered_items(model: &ItemListModel) -> Vec<SelectableItem> {
     model.filtered_items_iter().collect()
 }
 

@@ -1,35 +1,7 @@
 use std::cmp::{max, min};
 
-use crate::types::{FilteredItems, SelectableItem};
-
-pub struct SelectableItemsIterator<'a> {
-    items: &'a FilteredItems,
-    current_index: u16,
-    end_index: u16,
-    selected_index: i16,
-}
-
-impl<'a> SelectableItemsIterator<'a> {
-    pub fn new(items: &'a FilteredItems, start_index: u16, end_index: u16, selected_index: i16) -> SelectableItemsIterator<'a> {
-        SelectableItemsIterator {
-            items,
-            current_index: start_index,
-            end_index,
-            selected_index,
-        }
-    }
-}
-
-impl Iterator for SelectableItemsIterator<'_> {
-    type Item = SelectableItem;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.current_index == self.end_index as u16 { return None; }
-        let result = Some((self.items[self.current_index as usize].to_string(), self.current_index == self.selected_index as u16));
-        self.current_index += 1;
-        result
-    }
-}
+use crate::items_iterator::ItemsIterator;
+use crate::types::FilteredItems;
 
 pub struct ItemListModel {
     items: Vec<String>,
@@ -90,16 +62,16 @@ impl ItemListModel {
         true
     }
 
-    pub fn selectable_items_iter(&self) -> SelectableItemsIterator {
-        SelectableItemsIterator::new(
+    pub fn selectable_items_iter(&self) -> ItemsIterator {
+        ItemsIterator::new(
             &self.filtered_items,
             self.selection_window_start,
             self.get_selection_window_end(),
             self.selection)
     }
 
-    pub fn filtered_items_iter(&self) -> SelectableItemsIterator {
-        SelectableItemsIterator::new(
+    pub fn filtered_items_iter(&self) -> ItemsIterator {
+        ItemsIterator::new(
             &self.filtered_items,
             self.selection_window_start,
             self.filtered_items.len() as u16,
