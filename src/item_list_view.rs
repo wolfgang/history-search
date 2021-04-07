@@ -61,7 +61,7 @@ impl<'a, T> ItemListView<'a, T> where T: Write {
         execute!(self.stdout, MoveToColumn(0), SavePosition)?;
         self.stdout.write_fmt(format_args!("> {}\n\r", model.get_search_term()))?;
         for (item, is_selected) in model.selectable_items_iter() {
-            self.stdout.write_fmt(format_args!("{}\n\r", Self::printable_item(item, is_selected)))?;
+            self.stdout.write_fmt(format_args!("{}\n\r", Self::printable_item(&item, is_selected)))?;
         }
         execute!(self.stdout,RestorePosition,MoveToColumn(model.get_search_term().len() as u16 + 3))
     }

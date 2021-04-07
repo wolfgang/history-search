@@ -1,10 +1,10 @@
 use std::cmp::{max, min};
 
-type FilteredItems<'a> = Vec<&'a String>;
-type SelectableItem<'a> = (&'a String, bool);
+type FilteredItems = Vec<String>;
+type SelectableItem = (String, bool);
 
 pub struct SelectableItemsIterator<'a> {
-    items: &'a FilteredItems<'a>,
+    items: &'a FilteredItems,
     current_index: u16,
     end_index: u16,
     selected_index: i16,
@@ -21,29 +21,29 @@ impl<'a> SelectableItemsIterator<'a> {
     }
 }
 
-impl<'a> Iterator for SelectableItemsIterator<'a> {
-    type Item = SelectableItem<'a>;
+impl Iterator for SelectableItemsIterator<'_> {
+    type Item = SelectableItem;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.current_index == self.end_index as u16 { return None; }
-        let result = Some((self.items[self.current_index as usize], self.current_index == self.selected_index as u16));
+        let result = Some((self.items[self.current_index as usize].to_string(), self.current_index == self.selected_index as u16));
         self.current_index += 1;
         result
     }
 }
 
-pub struct ItemListModel<'a> {
-    items: &'a Vec<String>,
-    filtered_items: FilteredItems<'a>,
+pub struct ItemListModel {
+    items: Vec<String>,
+    filtered_items: FilteredItems,
     search_term: String,
     selection: i16,
     selection_window_start: u16,
     selection_window_height: u16,
-    selection_window_y: u16
+    selection_window_y: u16,
 }
 
-impl<'a> ItemListModel<'a> {
-    pub fn new(items: &'a Vec<String>) -> ItemListModel<'a> {
+impl ItemListModel {
+    pub fn new(items: Vec<String>) -> ItemListModel {
         let mut instance = Self {
             items,
             search_term: String::with_capacity(64),
@@ -134,6 +134,7 @@ impl<'a> ItemListModel<'a> {
         let search_term_upper = self.search_term.to_ascii_uppercase();
         self.filtered_items = self.items.iter()
             .filter(|it| it.to_ascii_uppercase().find(&search_term_upper) != None)
+            .map(|s| s.to_string())
             .collect()
     }
 

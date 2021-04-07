@@ -22,9 +22,8 @@ mod refresh {
     #[test]
     fn render_empty_prompt_if_no_items() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
-        let items = Vec::new();
         let mut view = make_10x4_view(&mut stdout_spy);
-        let model = make_model(&items);
+        let model = make_model(Vec::new());
 
         view.refresh(&model)?;
         let clear = f!("{esc}[0G          \n\r          \n\r          \n\r          \n\r{esc}[4A");
@@ -40,9 +39,8 @@ mod refresh {
     #[test]
     fn render_all_items_if_no_search_term() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
-        let items = vec!["one".into(), "two".into()];
         let mut view = make_10x4_view(&mut stdout_spy);
-        let model = make_model(&items);
+        let model = make_model(vec!["one".into(), "two".into()]);
 
         view.refresh(&model)?;
         let clear = f!("{esc}[0G          \n\r          \n\r          \n\r          \n\r{esc}[4A");
@@ -60,9 +58,8 @@ mod refresh {
     #[test]
     fn render_search_term_and_matching_items() -> crossterm::Result<()> {
         let mut stdout_spy = StdoutSpy::new();
-        let items = vec!["one".into(), "tree".into(), "palm tree".into()];
         let mut view = make_10x4_view(&mut stdout_spy);
-        let mut model = make_model(&items);
+        let mut model = make_model(vec!["one".into(), "tree".into(), "palm tree".into()]);
 
         model.add_to_search_term('t');
         model.add_to_search_term('r');
@@ -88,9 +85,8 @@ mod get_renderable_items_count {
     #[test]
     fn all_filtered_items_can_be_rendered() {
         let mut stdout_spy = StdoutSpy::new();
-        let items = vec!["one".into(), "two".into(), "three".into()];
         let view = make_10x4_view(&mut stdout_spy);
-        let model = make_model(&items);
+        let model = make_model(vec!["one".into(), "two".into(), "three".into()]);
 
         assert_eq!(view.get_renderable_items_count(&model), 3);
     }
@@ -105,7 +101,7 @@ mod get_renderable_items_count {
         let display_width = 10;
         let display_height = 5;
         let view = ItemListView::new(display_width, display_height, &mut stdout_spy);
-        let model = make_model(&items);
+        let model = make_model(items);
 
         // display height = 5 so we can render 2 items with two lines, plus the search prompt
         assert_eq!(view.get_renderable_items_count(&model), 2);
@@ -118,7 +114,7 @@ fn make_10x4_view(stdout_spy: &mut StdoutSpy) -> ItemListView<StdoutSpy> {
     ItemListView::new(display_width, display_height, stdout_spy)
 }
 
-fn make_model(items: &Vec<String>) -> ItemListModel {
+fn make_model(items: Vec<String>) -> ItemListModel {
     let mut model = ItemListModel::new(items);
     model.set_selection_window_height(10);
     model
