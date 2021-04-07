@@ -2,7 +2,7 @@ use std::env;
 use std::io::Write;
 use std::process::Command;
 
-use crossterm::event::{Event, KeyCode, read};
+use crossterm::event::{KeyCode, KeyEvent};
 use crossterm::style::Colorize;
 use crossterm::terminal::disable_raw_mode;
 
@@ -23,20 +23,19 @@ impl<'a, T> ItemListController<'a, T> where T: Write {
         self.refresh_item_list()
     }
 
-    pub fn tick(&mut self) -> crossterm::Result<bool> {
-        if let Event::Key(key_event) = read().unwrap() {
-            match key_event.code {
-                KeyCode::Enter => { return self.on_enter(); }
-                KeyCode::Esc => { return self.on_cancel(); }
-                KeyCode::Down => { return self.on_selection_change(1); }
-                KeyCode::Up => { return self.on_selection_change(-1); }
-                KeyCode::Backspace => { return self.on_backspace(); }
-                KeyCode::Char(ch) => { return self.on_character_entered(ch); }
-                _ => {}
-            }
+    pub fn handle_key_event(&mut self, key_event: KeyEvent) -> crossterm::Result<bool> {
+        match key_event.code {
+            KeyCode::Enter => { return self.on_enter(); }
+            KeyCode::Esc => { return self.on_cancel(); }
+            KeyCode::Down => { return self.on_selection_change(1); }
+            KeyCode::Up => { return self.on_selection_change(-1); }
+            KeyCode::Backspace => { return self.on_backspace(); }
+            KeyCode::Char(ch) => { return self.on_character_entered(ch); }
+            _ => {}
         }
         Ok(true)
     }
+
 
     fn on_selection_change(&mut self, direction: i16) -> crossterm::Result<bool> {
         if self.item_list_model.change_selection(direction) {

@@ -2,6 +2,7 @@ use std::{env, panic};
 use std::io::{stdout, Stdout};
 use std::panic::PanicInfo;
 
+use crossterm::event::{Event, read};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size};
 
 use hs::item_list_controller::ItemListController;
@@ -39,13 +40,15 @@ fn main_loop(controller: &mut ItemListController<Stdout>) -> crossterm::Result<(
     enable_raw_mode()?;
     controller.init()?;
     loop {
-        match controller.tick() {
-            Ok(false) => { break; }
-            Err(e) => {
-                disable_raw_mode()?;
-                return Err(e.into());
+        if let Event::Key(key_event) = read()? {
+            match controller.handle_key_event(key_event) {
+                Ok(false) => { break; }
+                Err(e) => {
+                    disable_raw_mode()?;
+                    return Err(e.into());
+                }
+                _ => {}
             }
-            _ => {}
         }
     }
     disable_raw_mode()
