@@ -7,7 +7,7 @@ mod construction {
     fn has_no_filtered_items_after_construction() {
         let items = Vec::new();
         let model = ItemListModel::new(&items);
-        assert_eq!(get_filtered_items(&model), vec![]);
+        assert_eq!(get_selectable_items(&model), vec![]);
         assert_eq!(model.get_selection_window_height(), 0)
     }
 
@@ -27,7 +27,7 @@ mod filtering {
     fn with_no_search_term_items_are_unfiltered() {
         let items = vec!["item 1".into(), "item 2".into()];
         let model = model(&items);
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"item 1".into(), true),
             (&"item 2".into(), false),
         ]);
@@ -39,14 +39,14 @@ mod filtering {
         let mut model = model(&items);
 
         model.add_to_search_term('o');
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"one".into(), true),
             (&"two".into(), false),
             (&"three ox".into(), false)
         ]);
 
         model.add_to_search_term('x');
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"three ox".into(), true)
         ]);
     }
@@ -58,14 +58,33 @@ mod filtering {
 
         model.add_to_search_term('1');
         model.add_to_search_term('3');
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"13".into(), true)]);
 
         model.pop_search_term();
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"12".into(), true),
             (&"13".into(), false),
             (&"14".into(), false)]);
+    }
+
+    #[test]
+    fn filtered_items_iter_returns_all_items_from_selection_start() {
+        let items = vec![
+            "one".into(),
+            "two".into(),
+            "three".into(),
+            "four".into(),
+        ];
+
+        let mut model = model(&items);
+        model.set_selection_window_height(2);
+        model.change_selection(1);
+        model.change_selection(1);
+        assert_eq!(get_filtered_items(&model), vec![
+            (&"two".into(), false),
+            (&"three".into(), true),
+            (&"four".into(), false)]);
     }
 }
 
@@ -78,12 +97,12 @@ mod selection {
         let mut model = model(&items);
 
         model.change_selection(1);
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"one".into(), false),
             (&"two".into(), true),
         ]);
         model.change_selection(-1);
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"one".into(), true),
             (&"two".into(), false),
         ])
@@ -95,12 +114,12 @@ mod selection {
         let mut model = model(&items);
 
         change_selection_times(5, 1, &mut model);
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"one".into(), false),
             (&"two".into(), true),
         ]);
         change_selection_times(10, -1, &mut model);
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"one".into(), true),
             (&"two".into(), false),
         ])
@@ -120,14 +139,14 @@ mod selection {
 
         assert_eq!(model.get_selection_window_height(), 3);
         model.change_selection(1);
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"one".into(), false),
             (&"two".into(), true),
             (&"three".into(), false),
         ]);
 
         model.change_selection(1);
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"one".into(), false),
             (&"two".into(), false),
             (&"three".into(), true),
@@ -135,27 +154,27 @@ mod selection {
 
 
         change_selection_times(5, 1, &mut model);
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"two".into(), false),
             (&"three".into(), false),
             (&"four".into(), true),
         ]);
 
         model.change_selection(-1);
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"two".into(), false),
             (&"three".into(), true),
             (&"four".into(), false),
         ]);
         model.change_selection(-1);
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"two".into(), true),
             (&"three".into(), false),
             (&"four".into(), false),
         ]);
 
         change_selection_times(5, -1, &mut model);
-        assert_eq!(get_filtered_items(&model), vec![
+        assert_eq!(get_selectable_items(&model), vec![
             (&"one".into(), true),
             (&"two".into(), false),
             (&"three".into(), false),
@@ -213,9 +232,14 @@ fn model(items: &Vec<String>) -> ItemListModel {
     model
 }
 
-fn get_filtered_items<'a>(model: &'a ItemListModel) -> Vec<(&'a String, bool)> {
+fn get_selectable_items<'a>(model: &'a ItemListModel) -> Vec<(&'a String, bool)> {
     model.selectable_items_iter().collect()
 }
+
+fn get_filtered_items<'a>(model: &'a ItemListModel) -> Vec<(&'a String, bool)> {
+    model.filtered_items_iter().collect()
+}
+
 
 fn change_selection_times(times: u16, direction: i16, model: &mut ItemListModel) {
     for _ in 0..times { model.change_selection(direction); }
