@@ -13,12 +13,9 @@ mod initialisation {
 
     #[test]
     fn init_renders_view() -> crossterm::Result<()> {
-        let display_width = 10;
-        let display_height = 5;
         let mut stdout_spy = StdoutSpy::new();
-        let mut view = ItemListView::new(display_width, display_height, &mut stdout_spy);
-        let mut model = ItemListModel::new(vec!["selected item".into(), "other item".into()]);
-        model.set_selection_window_height(9);
+        let mut view = view(&mut stdout_spy);
+        let mut model = model(vec!["selected item", "other item"]);
 
         let mut controller = ItemListController::new(&mut view, &mut model);
         controller.init()?;
@@ -29,4 +26,16 @@ mod initialisation {
         stdout_spy.assert_contains(f!("{esc}[0mother item{esc}"));
         Ok(())
     }
+}
+
+fn view(stdout_spy: &mut StdoutSpy) -> ItemListView<StdoutSpy> {
+    let display_width = 10;
+    let display_height = 5;
+    ItemListView::new(display_width, display_height, stdout_spy)
+}
+
+fn model(items: Vec<&str>) -> ItemListModel {
+    let mut model = ItemListModel::new(items.iter().map(|s| s.to_string()).collect());
+    model.set_selection_window_height(9);
+    model
 }
