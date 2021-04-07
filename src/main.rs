@@ -19,7 +19,7 @@ fn main() -> crossterm::Result<()> {
     let mut stdout = stdout();
     let (display_width, _) = size()?;
     let display_height = 11;
-    let mut item_list = ItemListView::new(display_height, display_width, &mut stdout);
+    let mut item_list = ItemListView::new(display_width, display_height, &mut stdout);
     let mut item_list_model = ItemListModel::new(&items);
     enable_raw_mode()?;
     ItemListController::new(&mut item_list, &mut item_list_model).run()?;

@@ -9,13 +9,13 @@ use crossterm::style::{StyledContent, Styler};
 use crate::item_list_model::ItemListModel;
 
 pub struct ItemListView<'a, T> where T: Write {
-    display_height: u16,
     display_width: u16,
+    display_height: u16,
     stdout: &'a mut T,
 }
 
 impl<'a, T> ItemListView<'a, T> where T: Write {
-    pub fn new(display_height: u16, display_width: u16, stdout: &'a mut T) -> Self {
+    pub fn new(display_width: u16, display_height: u16, stdout: &'a mut T) -> Self {
         Self { display_height, display_width, stdout }
     }
 

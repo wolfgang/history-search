@@ -24,7 +24,7 @@ mod refresh {
         let mut stdout_spy = StdoutSpy::new();
         let display_height = 4;
         let display_width = 10;
-        let mut view = ItemListView::new(display_height, display_width, &mut stdout_spy);
+        let mut view = ItemListView::new(display_width, display_height, &mut stdout_spy);
         let items = Vec::new();
         let model = ItemListModel::new(&items);
         view.refresh(&model)?;
@@ -43,7 +43,7 @@ mod refresh {
         let mut stdout_spy = StdoutSpy::new();
         let display_height = 4;
         let display_width = 10;
-        let mut view = ItemListView::new(display_height, display_width, &mut stdout_spy);
+        let mut view = ItemListView::new(display_width, display_height, &mut stdout_spy);
         let items = vec!["one".into(), "two".into()];
         let mut model = ItemListModel::new(&items);
         model.set_selection_window_height(10);
@@ -66,7 +66,7 @@ mod refresh {
         let mut stdout_spy = StdoutSpy::new();
         let display_height = 4;
         let display_width = 10;
-        let mut view = ItemListView::new(display_height, display_width, &mut stdout_spy);
+        let mut view = ItemListView::new(display_width, display_height, &mut stdout_spy);
         let items = vec!["one".into(), "tree".into(), "palm tree".into()];
         let mut model = ItemListModel::new(&items);
         model.set_selection_window_height(10);
