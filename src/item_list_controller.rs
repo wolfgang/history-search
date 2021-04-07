@@ -10,12 +10,12 @@ use crate::item_list_model::ItemListModel;
 use crate::item_list_view::ItemListView;
 
 pub struct ItemListController<'a, T> where T: Write {
-    item_list: &'a mut ItemListView<'a, T>,
+    item_list: &'a mut ItemListView<T>,
     item_list_model: &'a mut ItemListModel,
 }
 
 impl<'a, T> ItemListController<'a, T> where T: Write {
-    pub fn new(item_list: &'a mut ItemListView<'a, T>, item_list_model: &'a mut ItemListModel) -> ItemListController<'a, T> {
+    pub fn new(item_list: &'a mut ItemListView<T>, item_list_model: &'a mut ItemListModel) -> ItemListController<'a, T> {
         ItemListController { item_list, item_list_model }
     }
 

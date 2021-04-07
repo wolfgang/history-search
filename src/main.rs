@@ -1,6 +1,8 @@
 use std::{env, panic};
+use std::cell::RefCell;
 use std::io::{stdout, Stdout};
 use std::panic::PanicInfo;
+use std::rc::Rc;
 
 use crossterm::event::{Event, read};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size};
@@ -21,10 +23,10 @@ fn main() -> crossterm::Result<()> {
     let item_storage = ItemStorage::new();
     match item_storage.read_items() {
         Ok(items) => {
-            let mut stdout = stdout();
+            let stdout_ref = Rc::new(RefCell::new(stdout()));
             let (display_width, _) = size()?;
             let display_height = 11;
-            let mut item_list = ItemListView::new(display_width, display_height, &mut stdout);
+            let mut item_list = ItemListView::new(display_width, display_height, stdout_ref);
             let mut item_list_model = ItemListModel::new(items);
             let mut controller = ItemListController::new(&mut item_list, &mut item_list_model);
             return main_loop(&mut controller);
