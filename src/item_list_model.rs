@@ -1,7 +1,6 @@
 use std::cmp::{max, min};
 
-type FilteredItems = Vec<String>;
-type SelectableItem = (String, bool);
+use crate::types::{FilteredItems, SelectableItem};
 
 pub struct SelectableItemsIterator<'a> {
     items: &'a FilteredItems,
