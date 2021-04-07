@@ -14,7 +14,11 @@ impl StdoutSpy {
         assert_eq!(self.written_buf_as_str(), expected);
     }
 
-    fn written_buf_as_str(&self) -> &str {
+    pub fn assert_contains<T>(&self, expected: T) where T: Into<String> {
+        assert!(self.written_buf_as_str().contains(&expected.into()));
+    }
+
+    pub fn written_buf_as_str(&self) -> &str {
         from_utf8(self.written_buf.as_slice()).unwrap()
     }
 }
