@@ -1,18 +1,18 @@
 use std::cmp::{max, min};
 
 type FilteredItems<'a> = Vec<&'a String>;
-type FilteredItem<'a> = (&'a String, bool);
+type SelectableItem<'a> = (&'a String, bool);
 
-pub struct FilteredItemsIterator<'a> {
+pub struct SelectableItemsIterator<'a> {
     items: &'a FilteredItems<'a>,
     current_index: u16,
     end_index: u16,
     selected_index: i16,
 }
 
-impl<'a> FilteredItemsIterator<'a> {
-    pub fn new(items: &'a FilteredItems, start_index: u16, end_index: u16, selected_index: i16) -> FilteredItemsIterator<'a> {
-        FilteredItemsIterator {
+impl<'a> SelectableItemsIterator<'a> {
+    pub fn new(items: &'a FilteredItems, start_index: u16, end_index: u16, selected_index: i16) -> SelectableItemsIterator<'a> {
+        SelectableItemsIterator {
             items,
             current_index: start_index,
             end_index,
@@ -21,8 +21,8 @@ impl<'a> FilteredItemsIterator<'a> {
     }
 }
 
-impl<'a> Iterator for FilteredItemsIterator<'a> {
-    type Item = FilteredItem<'a>;
+impl<'a> Iterator for SelectableItemsIterator<'a> {
+    type Item = SelectableItem<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.current_index == self.end_index as u16 { return None; }
@@ -39,18 +39,16 @@ pub struct ItemListModel<'a> {
     selection: i16,
     selection_window_start: u16,
     selection_window_height: u16,
-    selection_window_y: u16,
-    max_selection_window_height: u16,
+    selection_window_y: u16
 }
 
 impl<'a> ItemListModel<'a> {
-    pub fn new(max_selection_window_height: u16, items: &'a Vec<String>) -> ItemListModel<'a> {
+    pub fn new(items: &'a Vec<String>) -> ItemListModel<'a> {
         let mut instance = Self {
             items,
             search_term: String::with_capacity(64),
             filtered_items: Vec::with_capacity(10),
-            max_selection_window_height,
-            selection_window_height: max_selection_window_height,
+            selection_window_height: 0,
             selection: 0,
             selection_window_start: 0,
             selection_window_y: 0,
@@ -93,13 +91,22 @@ impl<'a> ItemListModel<'a> {
         true
     }
 
-    pub fn filtered_items_iter(&self) -> FilteredItemsIterator {
-        FilteredItemsIterator::new(
+    pub fn selectable_items_iter(&self) -> SelectableItemsIterator {
+        SelectableItemsIterator::new(
             &self.filtered_items,
             self.selection_window_start,
             self.get_selection_window_end(),
             self.selection)
     }
+
+    pub fn filtered_items_iter(&self) -> SelectableItemsIterator {
+        SelectableItemsIterator::new(
+            &self.filtered_items,
+            self.selection_window_start,
+            self.filtered_items.len() as u16,
+            self.selection)
+    }
+
 
     pub fn get_selected_item(&self) -> &String {
         match self.filtered_items.get(self.selection as usize) {
@@ -114,10 +121,6 @@ impl<'a> ItemListModel<'a> {
 
     pub fn set_selection_window_height(&mut self, value: u16) {
         self.selection_window_height = value;
-    }
-
-    pub fn reset_selection_window_height(&mut self) {
-        self.set_selection_window_height(self.max_selection_window_height);
     }
 
     fn on_search_term_changed(&mut self) {

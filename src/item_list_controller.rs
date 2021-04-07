@@ -70,7 +70,6 @@ impl<'a, T> ItemListController<'a, T> where T: Write {
     }
 
     fn refresh_item_list(&mut self) -> crossterm::Result<()> {
-        self.item_list_model.reset_selection_window_height();
         let count = self.item_list.get_renderable_items_count(self.item_list_model);
         self.item_list_model.set_selection_window_height(count);
         self.item_list.refresh(self.item_list_model)
