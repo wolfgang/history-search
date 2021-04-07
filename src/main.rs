@@ -1,5 +1,5 @@
 use std::{env, panic};
-use std::io::stdout;
+use std::io::{stdout, Stdout};
 use std::panic::PanicInfo;
 
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size};
@@ -25,15 +25,30 @@ fn main() -> crossterm::Result<()> {
             let display_height = 11;
             let mut item_list = ItemListView::new(display_width, display_height, &mut stdout);
             let mut item_list_model = ItemListModel::new(items);
-            enable_raw_mode()?;
-            ItemListController::new(&mut item_list, &mut item_list_model).run()?;
-            return disable_raw_mode();
+            let mut controller = ItemListController::new(&mut item_list, &mut item_list_model);
+            return main_loop(&mut controller);
         }
         Err(e) => {
             println!("Error: Reading history failed: {}", e);
             Err(e.into())
         }
     }
+}
+
+fn main_loop(controller: &mut ItemListController<Stdout>) -> crossterm::Result<()> {
+    enable_raw_mode()?;
+    controller.init()?;
+    loop {
+        match controller.tick() {
+            Ok(false) => { break; }
+            Err(e) => {
+                disable_raw_mode()?;
+                return Err(e.into());
+            }
+            _ => {}
+        }
+    }
+    disable_raw_mode()
 }
 
 fn configure_panic_hook() {
