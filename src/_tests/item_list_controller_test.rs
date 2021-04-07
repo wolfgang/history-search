@@ -28,6 +28,27 @@ mod initialisation {
     }
 }
 
+mod key_events {
+    use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+
+    use super::*;
+
+    #[test]
+    fn esc_clears_and_returns_false() -> crossterm::Result<()> {
+        let mut stdout_spy = StdoutSpy::new();
+        let mut view = view(&mut stdout_spy);
+        let mut model = model(vec![]);
+
+        let mut controller = ItemListController::new(&mut view, &mut model);
+        controller.init()?;
+        let result = controller.handle_key_event(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+        assert_eq!(result.unwrap(), false);
+        stdout_spy.assert_contains(f!("{esc}[0G          \n\r"));
+        stdout_spy.assert_contains(f!("\n\r{esc}[5A{esc}[0G"));
+        Ok(())
+    }
+}
+
 fn view(stdout_spy: &mut StdoutSpy) -> ItemListView<StdoutSpy> {
     let display_width = 10;
     let display_height = 5;

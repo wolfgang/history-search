@@ -1,6 +1,8 @@
 use std::io::{Error, Write};
 use std::str::from_utf8;
 
+use regex::Regex;
+
 pub struct StdoutSpy {
     pub written_buf: Vec<u8>,
 }
@@ -10,12 +12,21 @@ impl StdoutSpy {
         Self { written_buf: Vec::with_capacity(256) }
     }
 
+    pub fn clear(&mut self) {
+        self.written_buf.clear();
+    }
+
     pub fn assert(&self, expected: String) {
         assert_eq!(self.written_buf_as_str(), expected);
     }
 
     pub fn assert_contains<T>(&self, expected: T) where T: Into<String> {
         assert!(self.written_buf_as_str().contains(&expected.into()));
+    }
+
+    pub fn assert_matches(&self, expected: &str) {
+        let re = Regex::new(expected).unwrap();
+        assert!(re.is_match(self.written_buf_as_str()));
     }
 
     pub fn written_buf_as_str(&self) -> &str {
