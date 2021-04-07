@@ -15,15 +15,22 @@ fn main() -> crossterm::Result<()> {
     if !args.is_empty() && args[0] == "-h" { return display_help(); }
 
     let item_storage = ItemStorage::new();
-    let items = item_storage.read_items();
-    let mut stdout = stdout();
-    let (display_width, _) = size()?;
-    let display_height = 11;
-    let mut item_list = ItemListView::new(display_width, display_height, &mut stdout);
-    let mut item_list_model = ItemListModel::new(items);
-    enable_raw_mode()?;
-    ItemListController::new(&mut item_list, &mut item_list_model).run()?;
-    return disable_raw_mode();
+    match item_storage.read_items() {
+        Ok(items) => {
+            let mut stdout = stdout();
+            let (display_width, _) = size()?;
+            let display_height = 11;
+            let mut item_list = ItemListView::new(display_width, display_height, &mut stdout);
+            let mut item_list_model = ItemListModel::new(items);
+            enable_raw_mode()?;
+            ItemListController::new(&mut item_list, &mut item_list_model).run()?;
+            return disable_raw_mode();
+        }
+        Err(e) => {
+            println!("Error: Reading history failed: {}", e);
+            Err(e.into())
+        }
+    }
 }
 
 fn display_help() -> crossterm::Result<()> {

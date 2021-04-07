@@ -16,8 +16,8 @@ impl ItemStorage {
         ItemStorage { item_file: histfile_value }
     }
 
-    pub fn read_items(&self) -> Vec<String> {
-        let file = File::open(&self.item_file).unwrap();
+    pub fn read_items(&self) -> std::io::Result<Vec<String>> {
+        let file = File::open(&self.item_file)?;
         let reader = BufReader::new(file);
 
         let mut lines: Vec<String> = reader
@@ -26,6 +26,6 @@ impl ItemStorage {
             .collect();
 
         lines.reverse();
-        lines
+        Ok(lines)
     }
 }
