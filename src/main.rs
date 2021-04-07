@@ -1,5 +1,6 @@
-use std::env;
+use std::{env, panic};
 use std::io::stdout;
+use std::panic::PanicInfo;
 
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size};
 
@@ -9,6 +10,8 @@ use hs::item_list_view::ItemListView;
 use hs::item_storage::ItemStorage;
 
 fn main() -> crossterm::Result<()> {
+    configure_panic_hook();
+
     let mut args: Vec<String> = env::args().collect();
     args.remove(0);
 
@@ -31,6 +34,14 @@ fn main() -> crossterm::Result<()> {
             Err(e.into())
         }
     }
+}
+
+fn configure_panic_hook() {
+    let panic_hook = panic::take_hook();
+    panic::set_hook(Box::new(move |panic_info: &PanicInfo| {
+        disable_raw_mode().unwrap();
+        panic_hook(panic_info);
+    }));
 }
 
 fn display_help() -> crossterm::Result<()> {
