@@ -82,6 +82,36 @@ mod refresh {
     }
 }
 
+mod get_renderable_items_count {
+    use super::*;
+
+    #[test]
+    fn all_filtered_items_can_be_rendered() {
+        let mut stdout_spy = StdoutSpy::new();
+        let items = vec!["one".into(), "two".into(), "three".into()];
+        let view = make_10x4_view(&mut stdout_spy);
+        let model = make_model(&items);
+
+        assert_eq!(view.get_renderable_items_count(&model), 3);
+    }
+
+    #[test]
+    fn some_filtered_items_can_be_rendered() {
+        let mut stdout_spy = StdoutSpy::new();
+        let items = vec![
+            "1234567890 one".into(),
+            "1234567890 two".into(),
+            "three".into()];
+        let display_width = 10;
+        let display_height = 5;
+        let view = ItemListView::new(display_width, display_height, &mut stdout_spy);
+        let model = make_model(&items);
+
+        // display height = 5 so we can render 2 items with two lines, plus the search prompt
+        assert_eq!(view.get_renderable_items_count(&model), 2);
+    }
+}
+
 fn make_10x4_view(stdout_spy: &mut StdoutSpy) -> ItemListView<StdoutSpy> {
     let display_width = 10;
     let display_height = 4;
