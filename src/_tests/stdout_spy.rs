@@ -75,7 +75,7 @@ impl StdoutSpy {
     }
 
 
-    pub fn written_buf_as_str(&self) -> &str {
+    fn written_buf_as_str(&self) -> &str {
         from_utf8(self.written_buf.as_slice()).unwrap()
     }
 }
