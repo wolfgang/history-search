@@ -75,6 +75,22 @@ mod refresh {
         {restore_cursor}"));
         Ok(())
     }
+
+    #[test]
+    fn cut_off_longer_lines() -> crossterm::Result<()> {
+        let (mut view, stdout_spy) = make_10x4_view();
+        let model = make_model(vec![
+            "line that is longer than the display width".into(),
+            "line two".into()
+        ]);
+
+        view.refresh(&model)?;
+        stdout_spy.assert_contains(f!("\
+        {esc}[7mline that {esc}[0m\n\r\
+        {esc}[0mline two{esc}[0m\n\r\
+        "));
+        Ok(())
+    }
 }
 
 fn make_10x4_view() -> (ItemListView<StdoutSpy>, StdoutSpyRef) {

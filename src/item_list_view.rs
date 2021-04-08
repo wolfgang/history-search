@@ -72,13 +72,9 @@ impl<T> ItemListView<T> where T: Write {
         execute!(stdout,RestorePosition,MoveToColumn(model.get_search_term().len() as u16 + 3))
     }
 
-    pub fn get_max_lines(&self) -> u16 {
-        self.display_height
-    }
-
     fn printable_item(&self, item: &String, is_selected: bool) -> StyledContent<String> {
-        let len = item.len();
-        let str = item.clone().as_str()[..min(self.display_width, len as u16) as usize].to_string();
+        let max_len = min(self.display_width as usize, item.len());
+        let str = item.as_str()[..max_len].to_string();
         if is_selected { str.reverse() } else { str.reset() }
     }
 }

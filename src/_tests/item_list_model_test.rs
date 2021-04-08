@@ -8,14 +8,6 @@ mod construction {
     fn has_no_filtered_items_after_construction() {
         let model = ItemListModel::new(Vec::new());
         assert_eq!(get_selectable_items(&model), vec![]);
-        assert_eq!(model.get_selection_window_height(), 0)
-    }
-
-    #[test]
-    fn set_selection_window_height_sets_you_know_what() {
-        let mut model = ItemListModel::new(Vec::new());
-        model.set_selection_window_height(12);
-        assert_eq!(model.get_selection_window_height(), 12);
     }
 }
 
@@ -127,7 +119,6 @@ mod selection {
         ]);
         model.set_selection_window_height(3);
 
-        assert_eq!(model.get_selection_window_height(), 3);
         model.change_selection(1);
         assert_eq!(get_selectable_items(&model), vec![
             ("one".into(), false),

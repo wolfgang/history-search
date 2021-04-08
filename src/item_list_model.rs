@@ -86,15 +86,8 @@ impl ItemListModel {
         }
     }
 
-    pub fn get_selection_window_height(&self) -> u16 {
-        self.selection_window_height
-    }
-
     pub fn set_selection_window_height(&mut self, value: u16) {
         self.selection_window_height = value;
-        while self.selection > 0 && self.selection >= self.get_selection_window_end() as i16 {
-            self.change_selection(-1);
-        }
     }
 
     fn on_search_term_changed(&mut self) {
