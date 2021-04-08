@@ -92,12 +92,9 @@ impl ItemListModel {
 
     pub fn set_selection_window_height(&mut self, value: u16) {
         self.selection_window_height = value;
-        if self.items.is_empty() { return };
-        let selection_window_end = self.get_selection_window_end() as i16;
-        if self.selection >= selection_window_end {
-            self.selection = selection_window_end - 1;
-            let effective_height = selection_window_end as u16 - self.selection_window_start;
-            self.selection_window_y = effective_height - 1;
+        if self.items.is_empty() { return; };
+        while self.selection >= self.get_selection_window_end() as i16 {
+            self.change_selection(-1);
         }
     }
 
