@@ -96,6 +96,31 @@ mod handle_key_event {
     }
 
     #[test]
+    fn verify_infinite_loop_with_empty_list_fixed() -> crossterm::Result<()> {
+        let (mut view, mut stdout_spy) = view();
+        let mut model = model(vec!["abcd", "efgh"]);
+        let mut controller = controller(&mut view, &mut model);
+        stdout_spy.clear();
+        controller.handle_key_event(char_event('a'))?;
+        controller.handle_key_event(char_event('b'))?;
+
+        // Adding x to search term clears list
+        stdout_spy.clear();
+        controller.handle_key_event(char_event('x'))?;
+        stdout_spy.assert_contains_not("abcd");
+        stdout_spy.assert_contains_not("efgh");
+
+        // Removing x re-adds 'abcd' entry
+        stdout_spy.clear();
+        controller.handle_key_event(key_event(KeyCode::Backspace))?;
+        stdout_spy.assert_contains("abcd");
+        stdout_spy.assert_contains_not("efgh");
+
+        Ok(())
+    }
+
+
+    #[test]
     fn returns_true_except_for_esc_and_enter() {
         let (mut view, _) = view();
         let mut model = model(vec!["abcd", "efgh"]);
