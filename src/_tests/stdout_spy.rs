@@ -31,6 +31,10 @@ impl StdoutSpyRef {
     pub fn assert_contains<T>(&self, expected: T) where T: Into<String> {
         self.stdout_spy.borrow().assert_contains(expected)
     }
+
+    pub fn assert_contains_not<T>(&self, expected: T) where T: Into<String> {
+        self.stdout_spy.borrow().assert_contains_not(expected)
+    }
 }
 
 impl StdoutSpy {
@@ -59,6 +63,17 @@ impl StdoutSpy {
 
         assert!(self.written_buf_as_str().contains(&expected_string));
     }
+
+    pub fn assert_contains_not<T>(&self, expected: T) where T: Into<String> {
+        let expected_string = expected.into();
+        let contains = self.written_buf_as_str().contains(&expected_string);
+        if contains {
+            println!("String expected to not contain {:?}: \n{:?}", expected_string, self.written_buf_as_str());
+        }
+
+        assert!(!self.written_buf_as_str().contains(&expected_string));
+    }
+
 
     pub fn written_buf_as_str(&self) -> &str {
         from_utf8(self.written_buf.as_slice()).unwrap()
