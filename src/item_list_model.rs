@@ -92,6 +92,11 @@ impl ItemListModel {
 
     pub fn set_selection_window_height(&mut self, value: u16) {
         self.selection_window_height = value;
+        if self.selection >= self.get_selection_window_end() as i16 {
+            self.selection = self.get_selection_window_end() as i16 - 1;
+            self.selection_window_y = self.selection_window_height - 1;
+            // self.selection_window_start = self.selection_window_y - self.selection_window_height + 1;
+        }
     }
 
     fn on_search_term_changed(&mut self) {

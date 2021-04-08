@@ -23,6 +23,7 @@ impl ItemStorage {
         let mut lines: Vec<String> = reader
             .lines()
             .map(|line| { line.unwrap().to_string() })
+            .filter(|line| { line.trim() != "" })
             .collect();
 
         lines.reverse();
