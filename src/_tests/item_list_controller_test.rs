@@ -37,7 +37,7 @@ mod handle_key_event {
         let mut controller = controller(&mut view, &mut model);
 
         controller.handle_key_event(key_event(KeyCode::Esc))?;
-        stdout_spy.assert_contains(f!("{esc}[0G          \n\r"));
+        stdout_spy.assert_contains(f!("{esc}[0G                    \n\r"));
         stdout_spy.assert_contains(f!("\n\r{esc}[5A{esc}[0G"));
         Ok(())
     }
@@ -141,7 +141,7 @@ mod handle_key_event {
 }
 
 fn view() -> (ItemListView<StdoutSpy>, StdoutSpyRef) {
-    let display_width = 10;
+    let display_width = 20;
     let display_height = 5;
     let stdout_spy = StdoutSpyRef::new();
     (ItemListView::new(display_width, display_height, stdout_spy.clone()), stdout_spy)

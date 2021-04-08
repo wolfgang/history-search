@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::cmp::min;
 use std::io::Write;
 use std::rc::Rc;
 
@@ -30,17 +31,8 @@ impl<T> ItemListView<T> where T: Write {
         }
     }
 
-    pub fn get_renderable_items_count(&self, model: &ItemListModel) -> u16 {
-        let mut current_height = 0;
-        let mut count: u16 = 0;
-        for (item, _) in model.filtered_items_iter() {
-            let line_height = (item.len() as f64 / self.display_width as f64).ceil() as u16;
-            if current_height + line_height > self.display_height - 1 { break; }
-            current_height += line_height;
-            count += 1;
-        }
-
-        count
+    pub fn get_renderable_items_count(&self) -> u16 {
+        self.display_height - 1
     }
 
     pub fn remove(&mut self) -> crossterm::Result<()> {
@@ -75,7 +67,7 @@ impl<T> ItemListView<T> where T: Write {
         execute!(stdout, MoveToColumn(0), SavePosition)?;
         stdout.write_fmt(format_args!("> {}\n\r", model.get_search_term()))?;
         for (item, is_selected) in model.selectable_items_iter() {
-            stdout.write_fmt(format_args!("{}\n\r", Self::printable_item(&item, is_selected)))?;
+            stdout.write_fmt(format_args!("{}\n\r", self.printable_item(&item, is_selected)))?;
         }
         execute!(stdout,RestorePosition,MoveToColumn(model.get_search_term().len() as u16 + 3))
     }
@@ -84,7 +76,9 @@ impl<T> ItemListView<T> where T: Write {
         self.display_height
     }
 
-    fn printable_item(item: &String, is_selected: bool) -> StyledContent<String> {
-        if is_selected { item.clone().reverse() } else { item.clone().reset() }
+    fn printable_item(&self, item: &String, is_selected: bool) -> StyledContent<String> {
+        let len = item.len();
+        let str = item.clone().as_str()[..min(self.display_width, len as u16) as usize].to_string();
+        if is_selected { str.reverse() } else { str.reset() }
     }
 }
